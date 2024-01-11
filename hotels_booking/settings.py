@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import dj_database_url
 from decouple import config
+from django.db import DatabaseError
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -52,7 +53,12 @@ TEMPLATES = [
 ]
 
 # Update the existing DATABASES configuration
-DATABASES = {'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
+    }
+}
 
 # Other settings (Email, Static files, etc.) remain unchanged
 STATIC_URL = '/static/'
