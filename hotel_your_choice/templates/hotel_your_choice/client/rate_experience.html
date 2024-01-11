@@ -1,0 +1,18 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Rate Experience</h1>
+<form method="post" action="{% url 'hotel_your_choice:rate_experience' booking.id %}">
+
+    {% csrf_token %}
+
+    <label for="rating">Rating (1-5):</label>
+    {{ form.rating }} {# Render the rating field #}
+
+    <label for="rating_text">Rating Text:</label>
+    {{ form.text }} {# Render the text field #}
+
+    <button type="submit" name="like_action" value="like">Like</button>
+    <button type="submit" name="like_action" value="dislike">Dislike</button>
+</form>
+{% endblock %}

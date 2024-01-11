@@ -1,0 +1,43 @@
+{% extends 'base_generic.html' %}
+{% block title %}Hotel Manager Dashboard{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<h2>Hotel Manager Dashboard</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Hotel</th>
+            <th>Check-in Date</th>
+            <th>Check-out Date</th>
+            <th>Status</th>
+            <th>Guests</th>
+            <th>Issued Date</th>
+            <th>Rating</th>
+            <th>Canceled By</th>
+            <!-- Add more columns as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.user.username }}</td>
+            <td>{{ booking.hotel.name }}</td>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td>{{ booking.get_status_display }}</td>
+            <td>{{ booking.guests }}</td>
+            <td>{{ booking.issued_date }}</td>
+            <td>{{ booking.rating }}</td>
+            <td>{{ booking.canceled_by.username|default:'N/A' }}</td>
+            <!-- Add more cells as needed -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

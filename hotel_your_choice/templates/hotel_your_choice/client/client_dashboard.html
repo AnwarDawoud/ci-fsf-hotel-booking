@@ -1,0 +1,68 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Client Dashboard{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<h1>Client Dashboard</h1>
+
+{# Display user-specific information or greetings #}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+        {% endfor %}
+</ul>
+{% endif %}
+
+<!-- Your Bookings -->
+<h2>Your Bookings:</h2>
+{% for booking in bookings %}
+<div>
+    <h3>Booking ID: {{ booking.id }}</h3>
+    <p>Check-in: {{ booking.check_in_date }} - Check-out: {{ booking.check_out_date }}</p>
+    <!-- Add other booking information as needed -->
+
+    <!-- Add links/buttons for actions like rating, rescheduling, and cancellation -->
+    <a href="{% url 'hotel_your_choice:rate_experience' booking.id %}">Rate your experience</a>
+
+    <form method="post" action="{% url 'hotel_your_choice:client_dashboard' %}">
+        {% csrf_token %}
+        <input type="hidden" name="booking_id" value="{{ booking.id }}">
+        <input type="hidden" name="action" value="reschedule_booking">
+        <label for="newCheckInDate">New Check-In Date:</label>
+        <input type="text" id="newCheckInDate" name="new_check_in_date" data-input>
+        <label for="newCheckOutDate">New Check-Out Date:</label>
+        <input type="text" id="newCheckOutDate" name="new_check_out_date" data-input>
+        <button type="submit" onclick="reloadPage()">Reschedule</button>
+    </form>
+
+    <form method="post" action="{% url 'hotel_your_choice:client_dashboard' %}">
+        {% csrf_token %}
+        <input type="hidden" name="booking_id" value="{{ booking.id }}">
+        <input type="hidden" name="action" value="cancel_booking">
+        <button type="submit" onclick="reloadPage()">Cancel</button>
+    </form>
+</div>
+{% endfor %}
+
+<!-- Add other content as needed -->
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    flatpickr( "#newCheckInDate", { dateFormat: "Y-m-d" } );
+    flatpickr( "#newCheckOutDate", { dateFormat: "Y-m-d" } );
+</script>
+<script>
+    $( document ).ready( function ()
+    {
+        // Show/hide reschedule form when the button is clicked
+        $( ".toggle-reschedule-form" ).on( "click", function ()
+        {
+            $( this ).next( "form" ).toggle();
+        } );
+    } );
+</script>
+{% endblock %}

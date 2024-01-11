@@ -1,0 +1,95 @@
+/* hotels_booking\hotel_your_choice\static\hotel_your_choice_css\style.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #fa5959;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+
+main {
+    padding: 1em;
+}
+
+footer {
+    background-color: #fa5959;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+form {
+    margin-top: 20px;
+}
+
+/* Add more styles as needed */
+/* Add this to your existing style.css or create a new CSS file for the dashboard */
+
+/* Table Styles */
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 50px;
+}
+
+.booking-table th,
+.booking-table td {
+    border: 1px solid #150404;
+    padding: 10px;
+    text-align: center;
+}
+
+.booking-table th {
+    background-color: #f2f2f2;
+}
+
+/* Optional: Hover effect on rows */
+.booking-table tbody tr:hover {
+    background-color: #e0e0e0;
+}
+
+/* Optional: Responsive Table Styling */
+@media screen and (max-width: 600px) {
+    .booking-table {
+        overflow-x: auto;
+        display: block;
+    }
+
+    .booking-table thead,
+    .booking-table tbody,
+    .booking-table th,
+    .booking-table td,
+    .booking-table tr {
+        display: block;
+    }
+
+    .booking-table th {
+        text-align: center;
+    }
+
+    /* Hide table headers (but keep accessible for screen readers) */
+    .booking-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .booking-table tbody tr {
+        margin-bottom: 20px;
+    }
+}

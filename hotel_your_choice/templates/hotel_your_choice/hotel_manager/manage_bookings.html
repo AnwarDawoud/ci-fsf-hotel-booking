@@ -1,0 +1,71 @@
+<!-- hotel_manager/manage_bookings.html -->
+
+{% extends 'base_generic.html' %}
+
+{% block title %}Manage Bookings{% endblock %}
+
+{% block content %}
+
+<h1>Manage Bookings</h1>
+<p>This is the page to view and manage bookings for the hotels you manage.</p>
+
+<!-- Filtering options -->
+<form method="get" action="">
+    <label>Status Filter:</label>
+    <select name="status_filter">
+        <option value="all" {% if request.GET.status_filter == 'all' %}selected{% endif %}>All</option>
+        <option value="active" {% if request.GET.status_filter == 'active' %}selected{% endif %}>Active</option>
+        <option value="canceled" {% if request.GET.status_filter == 'canceled' %}selected{% endif %}>Canceled</option>
+        <!-- Add more options based on your status choices -->
+    </select>
+    <input type="submit" value="Apply Filter">
+</form>
+
+
+
+<!-- Bookings table -->
+<table border="1">
+    <thead>
+        <tr>
+            <th><a href="?sort_by=check_in_date">Check-in Date</a></th>
+            <th><a href="?sort_by=check_out_date">Check-out Date</a></th>
+            <th><a href="?sort_by=status">Status</a></th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td>{{ booking.status }}</td>
+            <td>
+                <!-- View Details Link -->
+                <a href="{% url 'hotel_your_choice:view_booking_details' booking_id=booking.id %}">View Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!-- Add Excel download link -->
+<a href="{% url 'hotel_your_choice:download_excel' %}">Download Excel</a>
+<!-- Pagination links -->
+<div class="pagination">
+    <span class="step-links">
+        {% if bookings.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ bookings.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ bookings.number }} of {{ bookings.paginator.num_pages }}.
+        </span>
+
+        {% if bookings.has_next %}
+        <a href="?page={{ bookings.next_page_number }}">next</a>
+        <a href="?page={{ bookings.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock %}

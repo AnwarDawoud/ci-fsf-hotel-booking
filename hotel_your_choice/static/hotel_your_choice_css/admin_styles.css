@@ -1,0 +1,25 @@
+/* static/admin_styles.css */
+
+/* Define styles for Booking Status */
+.booking-active {
+    color: green !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Canceled */
+.booking-canceled {
+    color: red !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Rescheduled */
+.booking-rescheduled {
+    color: orange !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Completed */
+.booking-completed {
+    color: blue !important;
+    font-weight: bold !important;
+}

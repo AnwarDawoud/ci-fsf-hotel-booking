@@ -1,0 +1,38 @@
+{% extends 'base_generic.html' %}
+{% block title %}System Overview{% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+<h1>System Overview</h1>
+<p>This page provides a comprehensive overview of system-wide analytics and statistics.</p>
+
+<div class="analytics-container">
+    <div>
+        <!-- Display a chart showing user statistics -->
+        <canvas id="userStatisticsChart" style="width: 90%; margin: auto;"></canvas>
+    </div>
+
+    <!-- Add more analytics components as needed -->
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+
+
+<!-- Include your main.js file -->
+<script src="{% static 'hotel_your_choice_js/main.js' %}"></script>
+
+<style>
+    /* Add your custom styles here */
+    .analytics-container {
+        margin-top: 20px;
+    }
+
+    #userStatisticsChart {
+        width: 100%;
+        height: auto;
+    }
+</style>
+{% endblock %}

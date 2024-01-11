@@ -1,0 +1,27 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Login</h2>
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Your login form goes here -->
+    <form method="post" action="{% url 'hotel_your_choice:login' %}" class="login-form">
+        {% csrf_token %}
+        <!-- Login form fields go here -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" autocomplete="username">
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" autocomplete="current-password">
+
+        <button type="submit">Login</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base_generic.html' %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% load static %}
+
+{% block content %}
+
+<h1>Manage Users</h1>
+<p>This page allows the site administrator to manage user accounts, roles, and permissions.</p>
+
+<div id="userTableContainer">
+    <!-- User table will be loaded here -->
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+                <!-- Include other user details as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <!-- Include other user details as needed -->
+                <td>
+                    <button class="update-permissions-btn" data-user-id="{{ user.id }}">Update Permissions</button>
+                    <button class="delete-user-btn" data-user-id="{{ user.id }}">Delete User</button>
+
+                    <!-- Add onclick event to load user activities content -->
+                    <button class="load-activities-btn" data-user-id="{{ user.id }}">View Activities</button>
+
+                    <!-- Placeholder for dynamically loaded content -->
+                    <div id="viewActivitiesContent_{{ user.id }}"></div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Form for adding a user -->
+<form id="addUserForm">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <!-- Include other user details as needed -->
+
+    <button type="submit" class="add-user-btn">Add User</button>
+</form>
+
+<!-- Form for updating permissions -->
+<form id="updatePermissionsForm">
+    {% csrf_token %}
+    <label for="userId">User ID:</label>
+    <input type="text" id="userId" name="userId" required>
+
+    <label for="newPermissions">New Permissions:</label>
+    <input type="text" id="newPermissions" name="newPermissions" required>
+
+    <button type="submit" class="update-permissions-btn">Update Permissions</button>
+</form>
+
+<!-- Form for deleting a user -->
+<form id="deleteUserForm">
+    {% csrf_token %}
+    <label for="deleteUserId">User ID:</label>
+    <input type="text" id="deleteUserId" name="deleteUserId" required>
+
+    <button type="submit" class="delete-user-btn">Delete User</button>
+</form>
+
+<!-- Form for viewing user log -->
+<form id="viewUserLogForm">
+    {% csrf_token %}
+    <label for="logUserId">User ID:</label>
+    <input type="text" id="logUserId" name="logUserId" required>
+
+    <button type="submit" class="view-user-log-btn">View User Log</button>
+</form>
+
+<!-- Form for approving ratings -->
+<form id="approveRatingsForm">
+    {% csrf_token %}
+    <label for="ratingId">Rating ID:</label>
+    <input type="text" id="ratingId" name="ratingId" required>
+
+    <button type="submit" class="approve-rating-btn">Approve Rating</button>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<!-- Include script for handling actions -->
+<script src="{% static 'hotel_your_choice_js/manage_users.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+
+<h2>Booking Details</h2>
+<table>
+    <tr>
+        <th>Check-in Date</th>
+        <td>{{ selected_booking.check_in_date }}</td>
+    </tr>
+    <tr>
+        <th>Check-out Date</th>
+        <td>{{ selected_booking.check_out_date }}</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>{{ selected_booking.status }}</td>
+    </tr>
+    <tr>
+        <th>Guests</th>
+        <td>{{ selected_booking.guests }}</td>
+    </tr>
+    <!-- Add other booking details here -->
+    <tr>
+        <th>User ID</th>
+        <td>{{ selected_booking.user.id }}</td>
+    </tr>
+    <tr>
+        <th>User Name</th>
+        <td>{{ selected_booking.user.username }}</td>
+    </tr>
+    <tr>
+        <th>User Email</th>
+        <td><a href="mailto:{{ selected_booking.user.email }}">{{ selected_booking.user.email }}</a></td>
+    </tr>
+</table>
+
+<!-- Link to go back to Manage Bookings -->
+<a href="{% url 'hotel_your_choice:manage_bookings' %}">Back to Manage Bookings</a>
+{% endblock %}

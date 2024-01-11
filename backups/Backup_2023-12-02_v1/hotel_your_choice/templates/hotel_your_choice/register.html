@@ -1,0 +1,79 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div class="registration-container">
+    <h2>Register</h2>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+            {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Error!</strong> Please correct the following errors:
+        <ul>
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'hotel_your_choice:register' %}" class="registration-form">
+        {% csrf_token %}
+
+        <!-- Existing form fields -->
+        <label for="{{ form.email.id_for_label }}">Email:</label>
+        {{ form.email }}
+        <br>
+
+        <label for="{{ form.username.id_for_label }}">Username:</label>
+        {{ form.username }}
+        <br>
+
+        <label for="{{ form.first_name.id_for_label }}">First Name:</label>
+        {{ form.first_name }}
+        <br>
+
+        <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
+        {{ form.last_name }}
+        <br>
+
+        <label for="{{ form.contact_number.id_for_label }}">Contact Number:</label>
+        {{ form.contact_number }}
+        <br>
+
+        <label for="{{ form.password1.id_for_label }}">Password:</label>
+        {{ form.password1 }}
+        <br>
+
+        <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+        {{ form.password2 }}
+        <br>
+
+        <!-- New registration options checkboxes -->
+        <label for="{{ form.is_hotel_manager.id_for_label }}">
+            {{ form.is_hotel_manager }} Is Hotel Manager
+        </label>
+        <br>
+
+        <label for="{{ form.is_client_user.id_for_label }}">
+            {{ form.is_client_user }} Is Client User
+        </label>
+        <br>
+
+        <label for="{{ form.is_administrator.id_for_label }}">
+            {{ form.is_administrator }} Is Administrator
+        </label>
+        <br>
+
+        <button type="submit">Register</button>
+    </form>
+</div>
+{% endblock %}

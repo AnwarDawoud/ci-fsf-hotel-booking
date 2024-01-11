@@ -1,0 +1,26 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h2>Book a Hotel</h2>
+<!-- Your booking form goes here -->
+<form method="post" action="{% url 'hotel_your_choice:book_hotel' hotel_id=selected_hotel_id %}" id="bookHotelForm">
+    {% csrf_token %}
+    <!-- Add a hidden input field to store the selected hotel ID -->
+    <input type="hidden" name="selected_hotel_id" value="{{ selected_hotel_id }}">
+    <label for="hotel">Select a Hotel:</label>
+    <select name="hotel" id="hotel" required>
+        {% for hotel in available_hotels %}
+        <option value="{{ hotel.id }}">{{ hotel.name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Form fields go here -->
+    <label for="check_in">Check-in date:</label>
+    <input type="date" name="check_in" id="check_in" required>
+    <label for="check_out">Check-out date:</label>
+    <input type="date" name="check_out" id="check_out" required>
+    <label for="guests">Number of guests:</label>
+    <input type="number" name="guests" id="guests" required>
+    <button type="submit">Book Now</button>
+</form>
+{% endblock %}

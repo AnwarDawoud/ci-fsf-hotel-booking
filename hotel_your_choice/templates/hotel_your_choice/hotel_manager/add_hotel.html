@@ -1,0 +1,13 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+
+<h2>Add Hotel</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ hotel_form.as_p }}
+    {{ room_form.as_p }}
+    <input type="file" name="other_photos" multiple>
+    <button type="submit">Add Hotel</button>
+</form>
+{% endblock %}

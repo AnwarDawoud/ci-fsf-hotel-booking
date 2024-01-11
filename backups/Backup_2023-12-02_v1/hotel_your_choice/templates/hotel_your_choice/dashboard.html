@@ -1,0 +1,33 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Your Bookings</h1>
+
+<!-- Booking stories table -->
+<table class="booking-table">
+    <thead>
+        <tr>
+            <th>Serial Number</th>
+            <th>Hotel</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Guests</th>
+            <th>Issued Date</th> <!-- Replace with the correct field name -->
+            <!-- Add other table headers as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for booking in filtered_bookings %}
+        <tr>
+            <td>{{ booking.row_number }}</td>
+            <td>{{ booking.hotel.name }}</td>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td>{{ booking.guests }}</td>
+            <td>{{ booking.issued_date }}</td><!-- Replace with the correct field name -->
+            <!-- Add other table cells as needed -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

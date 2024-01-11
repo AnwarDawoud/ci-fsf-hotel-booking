@@ -1,0 +1,18 @@
+<!-- client/book_hotel.html -->
+
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h2>Book Hotel</h2>
+
+<!-- Add your specific content here -->
+<form method="post"
+    action="{% if selected_hotel_id %}{% url 'hotel_your_choice:book_hotel' selected_hotel_id %}{% else %}{% url 'hotel_your_choice:book_hotel' 0 %}{% endif %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="reschedule_booking" value="{{ form.reschedule_booking.value }}">
+    <button type="submit" id="submit-btn">Book Hotel</button>
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "C:/Users/Oleg/Documents/GitHub/ci-fsf-hotel-booking/hotels_booking/venv/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+}

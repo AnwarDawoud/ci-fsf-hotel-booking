@@ -1,0 +1,497 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'hotel_your_choice_css/view_hotels.css' %}">
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<h1>Hotel Information</h1>
+
+
+
+<div id="hotelContainer" class="hotels-container">
+    <div class="row">
+        {% for hotel in hotels %}
+        <div class="col-md-4 mb-3">
+            <div class="hotel-container">
+                {% if hotel.main_photo %}
+                <div class="hotel-photos">
+                    <!-- Display hotel main photo -->
+                    <img src="{{ hotel.main_photo.url }}" alt="{{ hotel.name }} Photo">
+                </div>
+                {% endif %}
+                <div class="hotel-card">
+                    <h2>{{ hotel.name }}</h2>
+                    <a id="readMoreLink_{{ hotel.id }}" href="javascript:void(0);"
+                        onclick="showReadMoreModal('{{ hotel.id }}');">More Details about Hotel</a>
+
+                    <!-- Modal content -->
+                    <div class="modal-read-more" id="readMoreModal{{ hotel.id }}">
+                        <h2>{{ hotel.name }}</h2>
+                        <p>{{ hotel.description }}</p>
+                        <!-- Include other details as needed -->
+                        <button onclick="hideReadMoreModal('{{ hotel.id }}')">Close</button>
+                    </div>
+                    <p>{{ hotel.address }}</p>
+                    <p>Amenities: {{ hotel.amenities.all|join:", " }}</p>
+                    <p>Price per night: {{ hotel.night_rate }}</p>
+                    <p>Room number: {{ hotel.room_number }}</p>
+                    <p>Capacity: {{ hotel.capacity }}</p>
+
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'hotel_your_choice:book_hotel' hotel.id %}"
+                        class="btn btn-primary btn-book-now">Book
+                        Now</a>
+                    {% else %}
+                    <p>Login to book this hotel.</p>
+                    {% endif %}
+
+                    {% if hotel.other_photos.all %}
+                    <div class="other-photos-container">
+                        <h3>More Photos:</h3>
+                        <div class="other-photos" id="otherPhotos{{ hotel.id }}">
+                            {% for photo in hotel.other_photos.all %}
+                            <img src="{{ photo.image.url }}" alt="{{ hotel.name }} Other Photo"
+                                onclick="showEnlarged('{{ photo.image.url }}', '{{ hotel.id }}', '{{ forloop.counter0 }}')"
+                                data-hotel-id="{{ hotel.id }}">
+                            {% endfor %}
+                        </div>
+                        <button id="showPhotosButton{{ hotel.id }}" onclick="toggleOtherPhotos('{{ hotel.id }}')">Show
+                            All Photos</button>
+                        <!-- Enlarged image container -->
+                        <div class="enlarged-image-container" id="enlargedContainer">
+                            <img src="#" alt="Enlarged Image" class="enlarged-image" id="enlargedImage">
+                            <!-- Left arrow -->
+                            <div id="leftArrow" class="arrow">&lt;</div>
+                            <!-- Right arrow -->
+                            <div id="rightArrow" class="arrow">&gt;</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                </div>
+
+                <!-- Display overall rating section for each hotel -->
+                {% if hotel.rated_bookings %}
+                <h3 class="toggle-ratings ratings-button" data-toggle="modal" data-target="#ratingsModal{{ hotel.id }}">
+                    Ratings</h3>
+                <div class="modal fade" id="ratingsModal{{ hotel.id }}" tabindex="-1" role="dialog"
+                    aria-labelledby="ratingsModalLabel{{ hotel.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ratingsModalLabel{{ hotel.id }}">Detailed Ratings</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {# If there are no rated bookings, show a message #}
+                                {% if not hotel.rated_bookings %}
+                                <p>No ratings or comments available for this hotel.</p>
+                                {% endif %}
+
+                                {% for booking in hotel.rated_bookings %}
+                                <ul>
+                                    <li>
+                                        {{ booking.user.username }},
+                                        {{ booking.ratings.first.rating }},
+                                        {{ booking.ratings.first.text|default:'' }},
+                                        {{ booking.ratings.first.timestamp|date:"F j, Y g:i a" }}
+                                        {% if request.user.is_staff %}
+                                        {% if booking.ratings.first %}
+                                        <form method="post"
+                                            action="{% url 'hotel_your_choice:delete_experience' booking.id %}">
+                                            {% csrf_token %}
+                                            <input type="submit" value="Delete Rate Experience">
+                                        </form>
+                                        {% endif %}
+                                        {% endif %}
+
+                                        {% if booking.comments.exists %}
+                                        <ul class="comment-list">
+                                            {% for comment in booking.comments.all %}
+                                            <li class="comment" data-comment-id="{{ comment.id }}">
+                                                <p>{{ comment.text }}</p>
+                                                <!-- Like, dislike, and delete options -->
+                                                <div class="like-dislike">
+                                                    <button class="like-comment-btn"
+                                                        data-like-url="{% url 'hotel_your_choice:like_comment' comment.id %}"
+                                                        data-comment-id="{{ comment.id }}">👍<span
+                                                            class="like-count">{{ comment.likes_count }}</span></button>
+                                                    <button class="dislike-comment-btn"
+                                                        data-dislike-url="{% url 'hotel_your_choice:dislike_comment' comment.id %}"
+                                                        data-comment-id="{{ comment.id }}">👎<span
+                                                            class="dislike-count">{{ comment.dislikes_count }}</span></button>
+                                                </div>
+                                                {% if request.user.is_staff %}
+                                                <!-- Show modification and deletion options for admins -->
+                                                <div>
+                                                    <h2>Delete Comment</h2>
+                                                    <p>Are you sure you want to delete the comment
+                                                        "{{ comment.text }}"?</p>
+                                                    <p>Comment ID: {{ comment.id }}</p>
+                                                    <form method="post" class="delete-comment-form"
+                                                        data-comment-id="{{ comment.id }}">
+                                                        {% csrf_token %}
+                                                        <ul class="commentList">
+                                                            <li>
+                                                                <button type="button" class="deleteCommentButton"
+                                                                    data-comment-id="{{ comment.id }}">Delete
+                                                                    Comment</button>
+                                                            </li>
+                                                        </ul>
+                                                    </form>
+                                                    <a href="{% url 'hotel_your_choice:view_hotels' %}">Cancel</a>
+                                                </div>
+                                                {% endif %}
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
+
+                                        <!-- Add comment form -->
+                                        <form class="add-comment-form" data-booking-id="{{ booking.id }}"
+                                            action="{% url 'hotel_your_choice:add_comment' booking.id %}" method="post">
+                                            {% csrf_token %}
+                                            {{ comment_form.as_p }}
+                                            <input type="hidden" name="rating_id"
+                                                value="{{ booking.ratings.first.id }}">
+                                            <button type="submit" id="add-comment-btn">Add Comment</button>
+                                        </form>
+
+                                        <!-- Detailed rating information -->
+                                        <div class="ratings-details">
+                                            <p>User: {{ booking.user.username }}</p>
+                                            <p>Rating: {{ booking.ratings.first.rating }}</p>
+                                            <p>Comment: {{ booking.ratings.first.text|default:'' }}</p>
+                                            <p>Timestamp: {{ booking.ratings.first.timestamp|date:"F j, Y g:i a" }}
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+</div>
+
+
+
+<script src="{% static 'hotel_your_choice_js/API_hotels.js' %}"></script>
+<script src="{% static 'hotel_your_choice_js/hotel_script.js' %}"></script>
+
+<script>
+    function showReadMoreModal ( hotelId )
+    {
+        $( '#readMoreModal' + hotelId ).show();
+    }
+
+    function hideReadMoreModal ( hotelId )
+    {
+        $( '#readMoreModal' + hotelId ).hide();
+    }
+
+    // Function to toggle the display of other photos
+    function toggleOtherPhotos ( hotelId )
+    {
+        var otherPhotosContainer = document.getElementById( 'otherPhotos' + hotelId );
+        var showPhotosButton = document.getElementById( 'showPhotosButton' + hotelId );
+
+        // Ensure that the elements are not null before attempting to update
+        if ( otherPhotosContainer && showPhotosButton )
+        {
+            // Toggle the display property
+            otherPhotosContainer.style.display = ( otherPhotosContainer.style.display === 'none' ) ? 'block' : 'none';
+            showPhotosButton.innerText = ( otherPhotosContainer.style.display === 'none' ) ? 'Show All Photos' : 'Hide Photos';
+        } else
+        {
+            console.error( 'Elements not found. Check if the IDs are correct.' );
+        }
+    }
+
+    // Flag to track if the enlarged image is already displayed
+    let isEnlargedVisible = false;
+
+    // Function to debounce rapid clicks
+    function debounce ( func, delay )
+    {
+        let inDebounce;
+        return function ()
+        {
+            const context = this;
+            const args = arguments;
+            clearTimeout( inDebounce );
+            inDebounce = setTimeout( () => func.apply( context, args ), delay );
+        };
+    }
+
+    // Function to show the enlarged image and handle scrolling
+    function showEnlarged ( imageSrc, hotelId )
+    {
+        const enlargedContainer = document.getElementById( 'enlargedContainer' );
+        const enlargedImage = document.getElementById( 'enlargedImage' );
+        const allImages = Array.from( document.querySelectorAll( `.hotel-photos img[data-hotel-id="${ hotelId }"], .other-photos img[data-hotel-id="${ hotelId }"]` ) );
+
+        // Set the source of the enlarged image
+        enlargedImage.src = imageSrc;
+
+        // Show the enlarged image container
+        enlargedContainer.style.display = 'flex';
+
+        // Set the current hotel ID
+        currentHotelId = hotelId;
+
+        // Function to hide the enlarged image
+        function hideEnlarged ()
+        {
+            // Hide the enlarged image container
+            enlargedContainer.style.display = 'none';
+
+            // Reset the flag when the enlarged image is hidden
+            isEnlargedVisible = false;
+
+            // Remove event listeners to avoid memory leaks
+            document.getElementById( 'leftArrow' ).removeEventListener( 'click', showPreviousImage );
+            document.getElementById( 'rightArrow' ).removeEventListener( 'click', showNextImage );
+        }
+
+        // Add click event listener to hide the enlarged image when clicked
+        enlargedContainer.onclick = hideEnlarged;
+
+        // Set the flag to indicate that the enlarged image is visible
+        isEnlargedVisible = true;
+
+        // Function to show the next image
+        function showNextImage ()
+        {
+            const currentIndex = allImages.findIndex( img => img.src === enlargedImage.src );
+
+            // Calculate the next index
+            const nextIndex = ( currentIndex + 1 ) % allImages.length;
+
+            // Check if the next image exists
+            if ( allImages[ nextIndex ] )
+            {
+                // Set the source of the next image
+                enlargedImage.src = allImages[ nextIndex ].src;
+            }
+        }
+
+        // Function to show the previous image
+        function showPreviousImage ()
+        {
+            const currentIndex = allImages.findIndex( img => img.src === enlargedImage.src );
+
+            // Calculate the previous index
+            const previousIndex = ( currentIndex - 1 + allImages.length ) % allImages.length;
+
+            // Check if the previous image exists
+            if ( allImages[ previousIndex ] )
+            {
+                // Set the source of the previous image
+                enlargedImage.src = allImages[ previousIndex ].src;
+            }
+        }
+
+        // Add click event listeners to the arrow elements
+        document.getElementById( 'leftArrow' ).onclick = function ( event )
+        {
+            event.stopPropagation();
+            showPreviousImage();
+        };
+
+        document.getElementById( 'rightArrow' ).onclick = function ( event )
+        {
+            event.stopPropagation();
+            showNextImage();
+        };
+    }
+
+    // Add click event listeners to each image to trigger the zoom effect
+    const allImages = document.querySelectorAll( '.hotel-photos img, .other-photos img' );
+    allImages.forEach( image =>
+    {
+        image.addEventListener( 'click', function ()
+        {
+            const imageSrc = this.src;
+            const hotelId = this.getAttribute( 'data-hotel-id' );
+            showEnlarged( imageSrc, hotelId );
+        } );
+    } );
+
+
+
+    $( document ).ready( function ()
+    {
+        // Like comment
+        $( ".like-comment-btn" ).click( function ()
+        {
+            var commentId = $( this ).data( "comment-id" );
+            var likeUrl = $( this ).data( "like-url" );
+
+            $.ajax( {
+                type: 'POST',
+                url: likeUrl,
+                data: {
+                    csrfmiddlewaretoken: $( 'input[name=csrfmiddlewaretoken]' ).val(),
+                    // Other data if needed
+                },
+                success: function ( data )
+                {
+                    // Update like count on the page
+                    $( ".like-count", '[data-comment-id="' + commentId + '"]' ).text( data.likes_count );
+                },
+                error: function ( error )
+                {
+                    // Handle error
+                    console.error( 'Error liking comment:', error );
+                }
+            } );
+        } );
+
+        // Dislike comment
+        $( ".dislike-comment-btn" ).click( function ()
+        {
+            var commentId = $( this ).data( "comment-id" );
+            var dislikeUrl = $( this ).data( "dislike-url" );
+
+            $.ajax( {
+                type: 'POST',
+                url: dislikeUrl,
+                data: {
+                    csrfmiddlewaretoken: $( 'input[name=csrfmiddlewaretoken]' ).val(),
+                    // Other data if needed
+                },
+                success: function ( data )
+                {
+                    // Update dislike count on the page
+                    $( ".dislike-count", '[data-comment-id="' + commentId + '"]' ).text( data.dislikes_count );
+                },
+                error: function ( error )
+                {
+                    // Handle error
+                    console.error( 'Error disliking comment:', error );
+                }
+            } );
+        } );
+
+        // Add comment
+        $( ".add-comment-form" ).submit( function ( event )
+        {
+            event.preventDefault();
+
+            var form = $( this );
+            var formData = form.serialize();
+            var addCommentUrl = form.attr( "action" );
+
+            $.ajax( {
+                type: 'POST',
+                url: addCommentUrl,
+                data: formData,
+                success: function ( data )
+                {
+                    console.log( data );  // Log the server response
+                    if ( data.status === 'success' )
+                    {
+                        // Append the new comment to the comment list
+                        var commentList = form.prev( ".comment-list" );
+                        commentList.append( data.html_comment );
+                        form.trigger( "reset" );
+                    } else
+                    {
+                        // Update the form with validation errors
+                        form.html( data.html_form );
+                    }
+                },
+                error: function ( xhr, status, error )
+                {
+                    // Handle error
+                    console.error( 'Error adding comment:', xhr.responseText );
+                }
+            } );
+        } );
+
+        document.getElementById( 'hotelContainer' ).addEventListener( 'click', function ( event )
+        {
+            if ( event.target.classList.contains( 'deleteCommentButton' ) )
+            {
+                console.log( 'Delete Comment button clicked' );
+                var commentId = event.target.getAttribute( 'data-comment-id' );
+                deleteComment( commentId );
+            }
+        } );
+
+        function deleteComment ( commentId )
+        {
+            fetch( `/delete_comment/${ commentId }/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie( 'csrftoken' ),
+                },
+            } )
+                .then( response => response.json() )
+                .then( data =>
+                {
+                    if ( data.success )
+                    {
+                        // Update the DOM to remove the deleted comment
+                        const commentElement = document.querySelector( `.comment[data-comment-id="${ commentId }"]` );
+                        commentElement.remove();
+                    } else
+                    {
+                        console.error( 'Comment deletion failed.' );
+                    }
+                } )
+                .catch( error =>
+                {
+                    console.error( 'Error during comment deletion:', error );
+                } );
+        }
+
+        // Function to get CSRF token from cookies
+        function getCookie ( name )
+        {
+            let cookieValue = null;
+            if ( document.cookie && document.cookie !== '' )
+            {
+                const cookies = document.cookie.split( ';' );
+                for ( let i = 0; i < cookies.length; i++ )
+                {
+                    const cookie = cookies[ i ].trim();
+                    if ( cookie.startsWith( name + '=' ) )
+                    {
+                        cookieValue = decodeURIComponent( cookie.substring( name.length + 1 ) );
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Show modal
+        $( ".toggle-ratings" ).click( function ()
+        {
+            var hotelId = $( this ).data( "hotel-id" );
+            $( "#ratingsModal" + hotelId ).modal( "show" );
+        } );
+    } );
+</script>
+
+
+<script src="{% static 'hotel_your_choice_js/API_hotels.js' %}"></script>
+<script src="{% static 'hotel_your_choice_js/hotel_script.js' %}"></script>
+{% endblock %}

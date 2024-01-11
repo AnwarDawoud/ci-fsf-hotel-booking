@@ -1,0 +1,19 @@
+<!--hotels_booking\hotel_your_choice\templates\hotel_your_choice\<home class="html"-->
+
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<h1>Welcome to Your Hotel Booking Site</h1>
+<p>Please <a href="{% url 'hotel_your_choice:login' %}">log in</a> to book a hotel.</p>
+{% if available_hotels %}
+
+<h2>Available Hotels</h2>
+<ul>
+    {% for hotel in available_hotels %}
+    <li>{{ hotel.name }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No hotels available.</p>
+{% endif %}
+{% endblock %}

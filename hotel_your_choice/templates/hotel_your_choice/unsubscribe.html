@@ -1,0 +1,12 @@
+{% extends 'base_generic.html' %}
+{% block title %}Unsubscribe{% endblock %}
+
+{% block content %}
+<h2>Unsubscribe</h2>
+<p>Are you sure you want to unsubscribe?</p>
+<!-- Add a form or button to confirm the unsubscribe action -->
+<form method="post" action="{% url 'hotel_your_choice:unsubscribe' %}">
+    {% csrf_token %}
+    <button type="submit">Confirm Unsubscribe</button>
+</form>
+{% endblock %}
