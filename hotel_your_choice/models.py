@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from .choices import RATING_CHOICES
 from datetime import datetime
+from django.db import models
+
+
 
 class CustomUser(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
@@ -148,9 +151,10 @@ class UserRating(models.Model):
     is_approved = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
+
 class Rating(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    booking = models.ForeignKey('hotel_your_choice.Booking', on_delete=models.CASCADE, related_name='ratings')
     rating = models.IntegerField(choices=RATING_CHOICES)
     text = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)

@@ -4,13 +4,12 @@ import dj_database_url
 from decouple import config
 from django.db import DatabaseError
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
 DEBUG = True
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
+ALLOWED_HOSTS = ['mysterious-tundra-89304.herokuapp.com', '127.0.0.1', 'localhost']
 
 
 INSTALLED_APPS = [
@@ -54,18 +53,44 @@ TEMPLATES = [
 ]
 
 # Update the existing DATABASES configuration
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',  # Change this based on your database
+#         'NAME': BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# DATABASES = {
+#    'default': dj_database_url.config(
+#        default=os.environ.get('postgres://hlrhzayn:uoZO905t2N8tM93SJQw8Jrcl2INj1lmk@horton.db.elephantsql.com/hlrhzayn')
+#    )
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'hlrhzayn',
+#         'PASSWORD': 'uoZO905t2N8tM93SJQw8Jrcl2INj1lmk',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+ON_HEROKU = os.environ.get('ON_HEROKU')
+HEROKU_SERVER = os.environ.get('HEROKU_SERVER')
+
+if ON_HEROKU:
+    DATABASE_URL = 'postgresql://hlrhzayn:uoZO905t2N8tM93SJQw8Jrcl2INj1lmk@horton.db.elephantsql.com/hlrhzayn'
+else:
+    DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+
+DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 # Other settings (Email, Static files, etc.) remain unchanged
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'hotel_your_choice/static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Change the login URL to use the default Django login URL
