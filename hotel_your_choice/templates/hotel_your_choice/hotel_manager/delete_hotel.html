@@ -1,0 +1,26 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'hotel_your_choice_css/delete_hotel.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<style>
+    /* Add your additional styles here */
+</style>
+
+<h1 class="center-align">Delete Hotel</h1>
+
+<div class="row">
+    <div class="col s12">
+        <p>Are you sure you want to delete the hotel "{{ hotel.name }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn waves-effect waves-light red">Delete Hotel</button>
+        </form>
+        <a href="{% url 'hotel_your_choice:view_hotels' %}" class="btn waves-effect waves-light">Cancel</a>
+    </div>
+</div>
+
+{% endblock %}

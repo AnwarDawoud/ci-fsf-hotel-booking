@@ -1,9 +1,10 @@
 # hotel_your_choice/views.py
+from urllib.parse import quote
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Comment, CustomUser, Hotel, Booking, Photo, UserActivity, Rating
+from .models import Comment, CustomUser, Hotel, Booking, Photo, UserActivity, Rating, Amenity
 from .forms import YourBookingForm, CustomRegistrationForm, HotelForm, RatingForm, CommentForm  # Import CommentForm
 import logging
 from django.contrib.auth import login, logout
@@ -16,11 +17,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views import View
-from .models import Hotel
+from .models import Hotel, Booking, Rating, Comment
 from django.contrib.auth import get_user_model
-from .forms import HotelForm, YourBookingForm
-from django.http import JsonResponse
-from .forms import CommentForm
+from django.views.decorators.csrf import csrf_exempt
+
 
 logger = logging.getLogger(__name__)
 
@@ -29,75 +29,96 @@ def view_hotels(request):
     # Existing hotels retrieval
     hotels = Hotel.objects.all()
 
-    # Iterate through hotels to fetch related data
     for hotel in hotels:
-        # Filter rated bookings for each hotel, excluding canceled bookings
-        hotel.rated_bookings = hotel.booking_set.filter(ratings__isnull=False, status__in=['active', 'rescheduled'])
+        # Get all rated bookings for the hotel
+        rated_bookings = Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False)
+
+        # Use set method to attach the rated bookings to the hotel
+        hotel.rated_bookings.set(rated_bookings)
 
     context = {'hotels': hotels}
 
-    # Create an instance of CommentForm
-    comment_form = CommentForm()
-
-    # Handle form submission
     if request.method == 'POST':
+        # Handle form submission for comments
         form = CommentForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data['text']
-            booking_id = request.POST.get('booking_id')
+            rating_id = request.POST.get('rating_id')
 
-            if booking_id:
-                hotel = get_object_or_404(Hotel, booking__id=booking_id)
+            if rating_id:
+                rating = get_object_or_404(Rating, id=rating_id)
 
-                return render(request, 'hotel_your_choice/common/view_hotels.html', context)
+                # Create a new comment associated with the specific rating and save it
+                comment = Comment(text=text, rating=rating, booking=rating.booking)
+                comment.save()
+
+                # Update the context to include the new comment
+                hotel = rating.hotel
+                hotel.rated_bookings.set(Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False))
+                context['hotels'] = hotels
+
+                # Add a success message
+                messages.success(request, 'Comment added successfully.')
             else:
-                messages.error(request, 'Booking ID is missing. Comment cannot be added.')
+                messages.error(request, 'Booking does not have a rating. Comment cannot be added.')
+        else:
+            messages.error(request, 'Booking ID is missing. Comment cannot be added.')
 
-    context['comment_form'] = comment_form
+    # Create a new instance of CommentForm for each iteration of the loop
+    context['comment_form'] = CommentForm()
 
     return render(request, 'hotel_your_choice/common/view_hotels.html', context)
 
 
+from django.views.decorators.csrf import csrf_protect
 
 @login_required
-def delete_comment(request, comment_id):
-    comment = get_object_or_404(Comment, pk=comment_id)
-    comment.delete()
-    return JsonResponse({'success': True})
-
 @require_POST
+@csrf_protect
+def delete_comment(request, comment_id):
+    try:
+        comment = get_object_or_404(Comment, pk=comment_id)
+        comment.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+def add_comment(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.booking = booking
+            comment.save()
+
+            # Update like and dislike counts
+            likes_count = comment.likes_count  # Update based on your actual comment model
+            dislikes_count = comment.dislikes_count  # Update based on your actual comment model
+
+            return JsonResponse({
+                'status': 'success',
+                'comment_id': comment.id,
+                'comment_text': comment.text,
+                'likes_count': likes_count,
+                'dislikes_count': dislikes_count
+            })
+
+    return JsonResponse({'status': 'error', 'errors': form.errors})
+
 def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.likes_count += 1
     comment.save()
     return JsonResponse({'likes_count': comment.likes_count})
 
-@require_POST
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.dislikes_count += 1
     comment.save()
     return JsonResponse({'dislikes_count': comment.dislikes_count})
-
-@require_POST
-def add_comment(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
-    form = CommentForm(request.POST)
-
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.booking = booking
-        comment.save()
-
-        # Render the new comment HTML
-        html_comment = f'<p>{comment.text}</p>'  # Customize based on your comment model
-
-        return JsonResponse({'status': 'success', 'html_comment': html_comment})
-
-    # If the form is not valid, return the form errors
-    html_form = f'<p class="error-message">Error adding comment. Please check the form.</p>'
-
-    return JsonResponse({'status': 'error', 'html_form': html_form})
 
 def delete_experience(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -125,37 +146,110 @@ def hotel_manager_dashboard(request):
 
 
 from django.contrib.auth.decorators import login_required
-
+from django.utils._os import safe_join
 from django.contrib import messages
-
+from django.db import transaction
 @login_required
+@transaction.atomic
 def add_hotel(request):
     if request.method == 'POST':
         hotel_form = HotelForm(request.POST, request.FILES)
 
         if hotel_form.is_valid():
-            new_hotel = hotel_form.save(commit=False)
-            new_hotel.manager = request.user
-            new_hotel.save()
+            # Save the form without committing to create a new instance
+            hotel_instance = hotel_form.save(commit=False)
 
+            # Set the manager to the currently logged-in user
+            hotel_instance.manager = request.user
+
+            # Save the hotel instance to get a valid primary key
+            hotel_instance.save()
+
+            # Handle amenities
+            amenities = request.POST.getlist('amenities')
+            for amenity_id in amenities:
+                amenity = Amenity.objects.get(id=amenity_id)
+                hotel_instance.amenities.add(amenity)
+
+            # Handle other_photos
             other_photos = request.FILES.getlist('other_photos')
             for photo in other_photos:
-                Photo.objects.create(image=photo, hotel=new_hotel)
+                # Save each photo separately and add to the hotel_instance
+                photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
+                hotel_instance.other_photos.add(photo_instance)
+
+            # Save the instance with the updated amenities and other_photos
+            hotel_instance.save()
 
             messages.success(request, 'Hotel added successfully!')
             return redirect('hotel_your_choice:view_hotels')
         else:
-            print(hotel_form.errors)  # Print form errors for debugging
+            messages.error(request, 'Error adding hotel. Please check the form.')
     else:
         hotel_form = HotelForm()
+
+    amenities = Amenity.objects.all()
 
     return render(
         request,
         'hotel_your_choice/hotel_manager/add_hotel.html',
-        {'hotel_form': hotel_form}
+        {'hotel_form': hotel_form, 'amenities': amenities}
     )
 
 
+@login_required
+def delete_hotel(request, hotel_id):
+    hotel = get_object_or_404(Hotel, id=hotel_id)
+
+    if request.user == hotel.manager:
+        hotel.delete()
+        messages.success(request, 'Hotel deleted successfully!')
+    else:
+        messages.error(request, 'You do not have permission to delete this hotel.')
+
+    return redirect('hotel_your_choice:view_hotels')
+
+def edit_hotel(request, hotel_id):
+    hotel = get_object_or_404(Hotel, id=hotel_id)
+
+    if request.method == 'POST':
+        hotel_form = HotelForm(request.POST, request.FILES, instance=hotel)
+
+        if hotel_form.is_valid():
+            # Save the form without committing to update the instance
+            hotel_instance = hotel_form.save(commit=False)
+
+            # Handle amenities
+            amenities = request.POST.getlist('amenities')
+            hotel_instance.amenities.clear()  # Clear existing amenities
+            for amenity_id in amenities:
+                amenity = Amenity.objects.get(id=amenity_id)
+                hotel_instance.amenities.add(amenity)
+
+            # Handle other_photos
+            other_photos = request.FILES.getlist('other_photos')
+            for photo in other_photos:
+                # Save each photo separately and add to the hotel_instance
+                photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
+                hotel_instance.other_photos.add(photo_instance)
+
+            # Save the instance with the updated amenities and other_photos
+            hotel_instance.save()
+
+            messages.success(request, 'Hotel edited successfully!')
+            return redirect('hotel_your_choice:view_hotels')
+        else:
+            messages.error(request, 'Error editing hotel. Please check the form.')
+    else:
+        hotel_form = HotelForm(instance=hotel)
+
+    amenities = Amenity.objects.all()
+
+    return render(
+        request,
+        'hotel_your_choice/hotel_manager/edit_hotel.html',
+        {'hotel_form': hotel_form, 'hotel': hotel, 'amenities': amenities}
+    )
    
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -277,7 +371,7 @@ def view_booking_details(request, booking_id):
 from django.db import IntegrityError, transaction
 
 @login_required
-def book_hotel(request, hotel_id=None):
+def book_hotel(request, hotel_id, hotel_name):
     available_hotels = Hotel.objects.all()
 
     if request.method == 'POST':
@@ -331,7 +425,7 @@ def book_hotel(request, hotel_id=None):
 
                             messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
 
-                            # Redirect to the client dashboard after successful booking
+                            # Redirect to the client dashboard after a successful booking
                             return redirect('hotel_your_choice:client_dashboard')
 
             except IntegrityError as e:
@@ -339,15 +433,18 @@ def book_hotel(request, hotel_id=None):
         else:
             print("Form errors:", form.errors)
     else:
-        form = YourBookingForm()
+        form = YourBookingForm(initial={'hotel': hotel_id})
 
     context = {
+        'hotel_name': hotel_name,
         'form': form,
         'available_hotels': available_hotels,
         'selected_hotel_id': hotel_id,
+        'selected_hotel_name': hotel_name,
     }
 
     return render(request, 'hotel_your_choice/client/book_hotel.html', context)
+
 
 def reschedule_booking(request):
     # Your implementation here

@@ -36,18 +36,26 @@ class YourBookingForm(forms.ModelForm):
 
 
 
+from django import forms
+from multiupload.fields import MultiFileField
+from .models import Hotel, Amenity, Photo
+
 class HotelForm(forms.ModelForm):
     youtube_video_url = forms.URLField(label='YouTube Video URL', required=False)
+    other_photos = MultiFileField(max_file_size=1024 * 1024 * 5, required=False)
+    amenities = forms.ModelMultipleChoiceField(
+        queryset=Amenity.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'}),  # Add a class for styling
+        required=False
+    )
 
     class Meta:
         model = Hotel
-        fields = ['name', 'description', 'address', 'night_rate', 'main_photo', 'amenities', 'capacity']
-
+        exclude = []  # Ensure 'id' is not included here
+        fields = ['name', 'description', 'address', 'night_rate', 'capacity', 'main_photo', 'youtube_video_url', 'amenities', 'other_photos']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
-            'amenities': forms.CheckboxSelectMultiple(),
         }
-
     
 
 class CustomRegistrationForm(UserCreationForm):
@@ -82,12 +90,8 @@ class RatingForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['text']
-
-    text = forms.CharField(max_length=255, required=False)  # Adjust max_length as needed
-
-
-
+        fields = ['text']  # Add other necessary fields
+    
 class RescheduleForm(forms.Form):
     new_check_in_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     new_check_out_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))

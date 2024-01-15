@@ -7,7 +7,7 @@
 
 <!-- Add your specific content here -->
 <form method="post"
-    action="{% if selected_hotel_id %}{% url 'hotel_your_choice:book_hotel' selected_hotel_id %}{% else %}{% url 'hotel_your_choice:book_hotel' 0 %}{% endif %}">
+    action="{% url 'hotel_your_choice:book_hotel' hotel_id=selected_hotel_id hotel_name=selected_hotel_name %}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="hidden" name="reschedule_booking" value="{{ form.reschedule_booking.value }}">

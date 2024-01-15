@@ -81,8 +81,12 @@ admin.site.register(Booking, BookingAdmin)
 
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'booking', 'rating', 'timestamp')
-    search_fields = ('user__username', 'booking__hotel__name', 'timestamp')
+    list_display = ('user', 'get_booking', 'rating', 'text', 'timestamp')
+
+    def get_booking(self, obj):
+        return obj.booking  # Replace with the actual attribute or method you want to display for booking
+
+    get_booking.short_description = 'Booking'
 
 class HotelAdmin(admin.ModelAdmin):
     list_display = ('name', 'night_rate', 'address', 'display_amenities')

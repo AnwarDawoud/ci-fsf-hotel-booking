@@ -3,12 +3,13 @@
 from django.urls import path, include
 from django.contrib import admin
 from hotel_your_choice import views
-from .views import CustomPasswordResetConfirmView, CustomPasswordResetView, delete_comment, reschedule_booking, cancel_booking
+from .views import CustomPasswordResetConfirmView, CustomPasswordResetView, add_comment, book_hotel, delete_comment, delete_experience, dislike_comment, like_comment, reschedule_booking, cancel_booking
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views 
 from django.contrib.auth.views import PasswordResetDoneView
 from .views import view_hotels, generate_excel, manage_bookings
+from .views import edit_hotel, delete_hotel
 
 # hotels_booking/hotel_your_choice/urls.py
 
@@ -22,12 +23,14 @@ urlpatterns = [
 
     # Common User URLs
     
-    path('delete-experience/<int:booking_id>/', views.delete_experience, name='delete_experience'),
-    path('add-comment/<int:booking_id>/', views.add_comment, name='add_comment'),
-    path('delete_comment/<int:comment_id>/', delete_comment, name='delete_comment'),
-    path('like-comment/<int:comment_id>/', views.like_comment, name='like_comment'),
-    path('dislike-comment/<int:comment_id>/', views.dislike_comment, name='dislike_comment'),
+    # Common User URLs
     path('view-hotels/', views.view_hotels, name='view_hotels'),
+    path('delete-experience/<int:booking_id>/', delete_experience, name='delete_experience'),
+    path('add-comment/<int:booking_id>/', add_comment, name='add_comment'),
+    path('delete_comment/<int:comment_id>/', delete_comment, name='delete_comment'),
+    path('like-comment/<int:comment_id>/', like_comment, name='like_comment'),
+    path('dislike-comment/<int:comment_id>/', dislike_comment, name='dislike_comment'),
+
 
     # Hotel Manager URLs
     path('hotel-manager/', include([
@@ -36,6 +39,8 @@ urlpatterns = [
         path('hotel-manager/manage-bookings/', manage_bookings, name='manage_bookings'),
         path('hotel-manager/manage-bookings/download/', generate_excel, name='download_excel'),
         path('view-booking-details/<int:booking_id>/', views.view_booking_details, name='view_booking_details'),
+        path('edit-hotel/<int:hotel_id>/', edit_hotel, name='edit_hotel'),
+        path('delete-hotel/<int:hotel_id>/', delete_hotel, name='delete_hotel'),
         
         # Add other hotel manager URLs as needed
     ])),
@@ -43,7 +48,7 @@ urlpatterns = [
     # Client URLs
     path('client/', include([
         path('dashboard/', views.client_dashboard, name='client_dashboard'),
-        path('book-hotel/<int:hotel_id>/', views.book_hotel, name='book_hotel'),
+        path('client/book-hotel/<int:hotel_id>/<str:hotel_name>/', book_hotel, name='book_hotel'),
         path('client/hotel_your_choice/reschedule-booking/<int:booking_id>/', reschedule_booking, name='reschedule_booking'),
         path('cancel-booking/<int:booking_id>/', cancel_booking, name='cancel_booking'),
         path('rate-experience/<int:booking_id>/', views.rate_experience, name='rate_experience'),

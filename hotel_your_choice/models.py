@@ -1,14 +1,12 @@
-# hotel_your_choice/models.py
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-from django.utils import timezone
-from .choices import RATING_CHOICES  # Fix the import
 from django.contrib.auth import get_user_model
-from django.utils.crypto import get_random_string
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import Avg
+from django.utils import timezone
+from django.utils.crypto import get_random_string
+from .choices import RATING_CHOICES
 from datetime import datetime
 
 class CustomUser(AbstractUser):
@@ -20,9 +18,9 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+    
     def generate_reset_token(self):
         return get_random_string(length=32)
-
 
 class Amenity(models.Model):
     name = models.CharField(max_length=100)
@@ -31,60 +29,61 @@ class Amenity(models.Model):
         return self.name
 
 class Photo(models.Model):
-    image = models.ImageField(upload_to='../hotel_photos/')
+    image = models.ImageField(upload_to='hotel_photos/')
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE)
 
 class Hotel(models.Model):
-    # Basic information
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     address = models.CharField(max_length=255)
-
-    # Pricing and availability
     night_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-
-    # Additional details
     capacity = models.IntegerField(null=True, blank=True)
     room_number = models.IntegerField(null=True, blank=True)
-
-    # Main photo and other photos
     main_photo = models.ImageField(upload_to='hotel_main_photos/')
     other_photos = models.ManyToManyField(Photo, related_name='hotel_photos', blank=True)
-    # Amenities
     amenities = models.ManyToManyField(Amenity)
-
-    # Manager
     manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rated_bookings = models.ManyToManyField('Booking', related_name='rated_hotels', blank=True)
+
+    def get_ratings(self):
+        return Rating.objects.filter(booking__hotel=self)
 
     def __str__(self):
         return self.name
-    
+
 class Booking(models.Model):
+    STATUS_ACTIVE = 'active'
+    STATUS_CANCELED = 'canceled'
+    STATUS_RESCHEDULED = 'rescheduled'
+
     STATUS_CHOICES = [
-        ('active', 'Booking Active'),
-        ('canceled', 'Booking Canceled'),
-        ('rescheduled', 'Booking Rescheduled'),
+        (STATUS_ACTIVE, 'Booking Active'),
+        (STATUS_CANCELED, 'Booking Canceled'),
+        (STATUS_RESCHEDULED, 'Booking Rescheduled'),
     ]
 
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, null=True)
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     guests = models.PositiveIntegerField()
     issued_date = models.DateField(auto_now_add=True)
     rating = models.PositiveIntegerField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
     canceled_by = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True, related_name='canceled_bookings')
     original_booking = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        if self.status == 'active':
+        return self.display_status()
+
+    def display_status(self):
+        if self.status == self.STATUS_ACTIVE:
             return f'{self.id} - {self.user.username} - {self.hotel.name} Booking (Active)'
-        elif self.status == 'canceled':
+        elif self.status == self.STATUS_CANCELED:
             canceled_by_display = f' by {self.canceled_by.username}' if self.canceled_by else ''
             return f'{self.id} - {self.user.username} - {self.hotel.name} Booking (Canceled{canceled_by_display})'
-        elif self.status == 'rescheduled':
+        elif self.status == self.STATUS_RESCHEDULED:
             if self.original_booking:
                 return f'{self.id} - {self.user.username} - {self.hotel.name} Booking (Rescheduled from Booking ID#{self.original_booking.id})'
             else:
@@ -93,7 +92,7 @@ class Booking(models.Model):
             return super().__str__()
 
     def calculate_average_rating(self):
-        hotel_ratings = Rating.objects.filter(booking__hotel=self.hotel, booking__status='active')
+        hotel_ratings = Rating.objects.filter(booking__hotel=self.hotel, booking__status=self.STATUS_ACTIVE)
         average_rating = hotel_ratings.aggregate(Avg('rating'))['rating__avg']
 
         self.hotel.average_rating = average_rating
@@ -110,7 +109,7 @@ class Booking(models.Model):
             hotel=self.hotel,
             check_in_date__lt=self.check_out_date,
             check_out_date__gt=self.check_in_date,
-            status='active'
+            status=self.STATUS_ACTIVE
         ).exclude(id=self.id)
 
         if overlapping_bookings.exists():
@@ -124,11 +123,11 @@ class Booking(models.Model):
         if hasattr(self, 'ratings'):
             self.calculate_average_rating()
 
-        if self.status == 'canceled':
+        if self.status == self.STATUS_CANCELED:
             if self.original_booking:
                 try:
                     original_booking = Booking.objects.get(id=self.original_booking.id)
-                    original_booking.status = 'canceled'
+                    original_booking.status = self.STATUS_CANCELED
                     original_booking.canceled_by = self.canceled_by
                     original_booking.rating = None
                     original_booking.save()
@@ -165,8 +164,9 @@ class Comment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='comments', default=None, null=True, blank=True)
     dislikes_count = models.IntegerField(null=True, blank=True, default=0)
     likes_count = models.IntegerField(null=True, blank=True, default=0)
+    
+    # Add this line to create a ForeignKey relationship with the Rating model
+    rating = models.ForeignKey('Rating', on_delete=models.CASCADE, related_name='comments', default=None, null=True, blank=True)
 
     def __str__(self):
         return f"Comment at {self.timestamp}"
-    
-    
