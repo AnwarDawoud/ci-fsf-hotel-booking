@@ -10,8 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
 DEBUG = False
 ALLOWED_HOSTS = [
-    '*.herokuapp.com'
-    'mysterious-tundra-89304-deptes.herokuapp.com',
+    '*.herokuapp.com',
+    'mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com/',
     '127.0.0.1',
     'localhost'
 ]
