@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['mysterious-tundra-89304.herokuapp.com', '127.0.0.1', 'localhost']
 
 
