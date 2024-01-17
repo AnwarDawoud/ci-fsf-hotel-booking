@@ -114,6 +114,7 @@ def like_comment(request, comment_id):
     comment.save()
     return JsonResponse({'likes_count': comment.likes_count})
 
+
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.dislikes_count += 1
