@@ -139,7 +139,7 @@
                                                     <!-- Like, dislike, and delete options -->
                                                     <div class="like-dislike">
                                                         <form class="like-form" method="post"
-                                                            action="{% if comment.id is not None %}{% url 'hotel_your_choice:like_comment' comment.id %}{% endif %}">
+                                                            action="{% url 'hotel_your_choice:like_comment' comment.id %}">
                                                             {% csrf_token %}
                                                             <button type="submit" class="like-comment-btn"
                                                                 data-like-url="{% url 'hotel_your_choice:like_comment' comment.id %}"
@@ -151,7 +151,7 @@
                                                         </form>
 
                                                         <form class="dislike-form" method="post"
-                                                            action="{% if comment.id is not None %}{% url 'hotel_your_choice:dislike_comment' comment.id %}{% endif %}">
+                                                            action="{% url 'hotel_your_choice:dislike_comment' comment.id %}">
                                                             {% csrf_token %}
                                                             <button type="submit" class="dislike-comment-btn"
                                                                 data-dislike-url="{% url 'hotel_your_choice:dislike_comment' comment.id %}"

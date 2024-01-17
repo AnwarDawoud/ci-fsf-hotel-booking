@@ -9,7 +9,7 @@ colorama==0.4.6
 cryptography==41.0.7
 defusedxml==0.7.1
 dj-database-url==2.1.0
-django<=3.8
+django==3.2.23
 django-storages
 
 
