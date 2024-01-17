@@ -163,6 +163,7 @@ class Rating(models.Model):
         return f"Rating for {self.booking} by {self.user.username}"
 
 class Comment(models.Model):
+    id = models.BigAutoField(primary_key=True)  # Add this line for an explicit ID field
     text = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='comments', default=None, null=True, blank=True)
