@@ -1,4 +1,4 @@
-psycopg2-binary>=2.8,<3.0
+psycopg2-binary==2.8.6
 asgiref==3.7.2
 certifi==2023.11.17
 cffi==1.16.0
