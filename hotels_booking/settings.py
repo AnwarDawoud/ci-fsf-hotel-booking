@@ -115,8 +115,7 @@ import dj_database_url
 from decouple import config
 from django.db import DatabaseError
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ON_HEROKU = config('ON_HEROKU', default=False, cast=bool)
 
@@ -141,7 +140,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.auth',
     'multiupload',
-    'hotel_your_choice'
+    'storages',
+    'hotel_your_choice.apps.YourAppConfig',
+    
 ]
 
 MIDDLEWARE = [
@@ -209,9 +210,13 @@ DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 # Other settings (Email, Static files, etc.) remain unchanged
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'hotel_your_choice/static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'hotel_your_choice/static'),
+]
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Change the login URL to use the default Django login URL

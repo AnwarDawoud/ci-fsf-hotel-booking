@@ -9,9 +9,14 @@ colorama==0.4.6
 cryptography==41.0.7
 defusedxml==0.7.1
 dj-database-url==2.1.0
-Django==5.0.1
+Django=4.5
+django-storages
+
+
 django-extra-views==0.14.0
-django-multiupload==0.6.1
+django-multiupload>=0.6,<0.7
+
+
 django-on-heroku==1.1.2
 et-xmlfile==1.1.0
 gunicorn==21.2.0
@@ -41,3 +46,4 @@ urllib3==2.1.0
 uvicorn==0.25.0
 whitenoise==6.6.0
 XlsxWriter==3.1.9
+
