@@ -1,4 +1,4 @@
-psycopg2-binary==2.8.6
+
 asgiref==3.7.2
 certifi==2023.11.17
 cffi==1.16.0
@@ -22,7 +22,7 @@ numpy==1.26.3
 oauthlib==3.2.2
 packaging==23.2
 Pillow==10.1.0
-psycopg2-binary==2.9.9
+
 pyarrow==14.0.2
 pycparser==2.21
 PyJWT==2.8.0
