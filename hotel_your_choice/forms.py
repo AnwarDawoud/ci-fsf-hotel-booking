@@ -37,15 +37,16 @@ class YourBookingForm(forms.ModelForm):
 
 
 from django import forms
+from django.core.exceptions import ValidationError
 from multiupload.fields import MultiFileField
-from .models import Hotel, Amenity, Photo
+from .models import Hotel, Amenity
 
 class HotelForm(forms.ModelForm):
     youtube_video_url = forms.URLField(label='YouTube Video URL', required=False)
     other_photos = MultiFileField(max_file_size=1024 * 1024 * 5, required=False)
     amenities = forms.ModelMultipleChoiceField(
         queryset=Amenity.objects.all(),
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'}),  # Add a class for styling
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'}),
         required=False
     )
 
@@ -56,6 +57,15 @@ class HotelForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
+
+    def clean_other_photos(self):
+        other_photos = self.cleaned_data.get('other_photos', [])
+        for photo in other_photos:
+            if photo.content_type not in ['image/jpeg', 'image/png']:
+                raise ValidationError('Only JPEG and PNG images are allowed.')
+            if photo.size > 5 * 1024 * 1024:  # 5 MB
+                raise ValidationError('File size should be no more than 5 MB.')
+        return other_photos
     
 
 class CustomRegistrationForm(UserCreationForm):
