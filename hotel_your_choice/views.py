@@ -148,12 +148,10 @@ def hotel_manager_dashboard(request):
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from .models import Hotel, Amenity, Photo
-from .forms import HotelForm
-
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from .forms import HotelForm
+from .models import Amenity, Photo
+from django.db import transaction
 
 @login_required
 @transaction.atomic
@@ -163,8 +161,13 @@ def add_hotel(request):
 
         if hotel_form.is_valid():
             try:
+                # Save the form without committing to create a new instance
                 hotel_instance = hotel_form.save(commit=False)
+                
+                # Set the manager to the currently logged-in user
                 hotel_instance.manager = request.user
+                
+                # Save the hotel instance to get a valid primary key
                 hotel_instance.save()
 
                 # Handle amenities
@@ -175,7 +178,10 @@ def add_hotel(request):
 
                 # Handle other_photos
                 other_photos = request.FILES.getlist('other_photos')
-                handle_photo_upload(hotel_instance, other_photos)
+                handle_photo_upload(request, hotel_instance, other_photos)
+
+                # Save the instance with the updated amenities and other_photos
+                hotel_instance.save()
 
                 messages.success(request, 'Hotel added successfully!')
                 return redirect('hotel_your_choice:view_hotels')
@@ -189,7 +195,7 @@ def add_hotel(request):
 
         else:
             messages.error(request, 'Error adding hotel. Please check the form.')
-    
+
     else:
         hotel_form = HotelForm()
 
@@ -201,7 +207,7 @@ def add_hotel(request):
         {'hotel_form': hotel_form, 'amenities': amenities}
     )
 
-def handle_photo_upload(hotel_instance, other_photos):
+def handle_photo_upload(request, hotel_instance, other_photos):
     for photo in other_photos:
         try:
             photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)

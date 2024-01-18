@@ -67,13 +67,15 @@
                     <select id="amenities" name="amenities" data-placeholder="Choose amenities..." multiple
                         class="chosen-select">
                         {% for amenity in amenities %}
-                        <option value="{{ amenity.pk }}" {% if amenity in hotel.amenities.all %}selected{% endif %}>
+                        <option value="{{ amenity.pk }}"
+                            {% if amenity in hotel_form.instance.amenities.all %}selected{% endif %}>
                             {{ amenity.name }}
                         </option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
+
             <!-- Other Photos -->
             <div class="row">
                 <div class="file-field input-field col s12">
