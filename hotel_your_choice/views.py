@@ -26,20 +26,11 @@ logger = logging.getLogger(__name__)
 
 
 def view_hotels(request):
-    # Existing hotels retrieval
-    hotels = Hotel.objects.all()
-
-    for hotel in hotels:
-        # Get all rated bookings for the hotel
-        rated_bookings = Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False)
-
-        # Use set method to attach the rated bookings to the hotel
-        hotel.rated_bookings.set(rated_bookings)
+    hotels = Hotel.objects.all().prefetch_related('rated_bookings__ratings__user', 'amenities')
 
     context = {'hotels': hotels}
 
     if request.method == 'POST':
-        # Handle form submission for comments
         form = CommentForm(request.POST)
         if form.is_valid():
             text = form.cleaned_data['text']
@@ -47,8 +38,6 @@ def view_hotels(request):
 
             if rating_id:
                 rating = get_object_or_404(Rating, id=rating_id)
-
-                # Create a new comment associated with the specific rating and save it
                 comment = Comment(text=text, rating=rating, booking=rating.booking)
                 comment.save()
 
@@ -57,14 +46,12 @@ def view_hotels(request):
                 hotel.rated_bookings.set(Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False))
                 context['hotels'] = hotels
 
-                # Add a success message
                 messages.success(request, 'Comment added successfully.')
             else:
                 messages.error(request, 'Booking does not have a rating. Comment cannot be added.')
         else:
             messages.error(request, 'Booking ID is missing. Comment cannot be added.')
 
-    # Create a new instance of CommentForm for each iteration of the loop
     context['comment_form'] = CommentForm()
 
     return render(request, 'hotel_your_choice/common/view_hotels.html', context)
@@ -161,41 +148,26 @@ def add_hotel(request):
 
         if hotel_form.is_valid():
             try:
-                # Save the form without committing to create a new instance
                 hotel_instance = hotel_form.save(commit=False)
-
-                # Set the manager to the currently logged-in user
                 hotel_instance.manager = request.user
-
-                # Save the hotel instance to get a valid primary key
                 hotel_instance.save()
 
-                print(f'Hotel instance saved with ID: {hotel_instance.id}')
-
-                # Handle amenities
                 amenities = request.POST.getlist('amenities')
-                for amenity_id in amenities:
-                    amenity = get_object_or_404(Amenity, id=amenity_id)
-                    hotel_instance.amenities.add(amenity)
+                hotel_instance.amenities.set(Amenity.objects.filter(id__in=amenities))
 
-                # Handle other_photos
                 other_photos = request.FILES.getlist('other_photos')
                 for photo in other_photos:
                     try:
-                        # Save each photo separately and add to the hotel_instance
                         photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
                         hotel_instance.other_photos.add(photo_instance)
                     except Exception as e:
-                        # Handle exceptions during photo upload
                         messages.error(request, f'Error uploading photo: {e}')
 
-                # Save the instance with the updated amenities and other_photos
                 hotel_instance.save()
 
                 messages.success(request, 'Hotel added successfully!')
                 return redirect('hotel_your_choice:view_hotels')
             except Exception as e:
-                # Handle other exceptions
                 messages.error(request, f'Error adding hotel: {e}')
         else:
             messages.error(request, 'Error adding hotel. Please check the form.')

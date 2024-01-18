@@ -36,7 +36,6 @@ class Photo(models.Model):
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE)
 
 class Hotel(models.Model):
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
     address = models.CharField(max_length=255)
@@ -54,6 +53,7 @@ class Hotel(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Booking(models.Model):
     STATUS_ACTIVE = 'active'
