@@ -138,36 +138,50 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from .forms import HotelForm
 from .models import Amenity, Photo
-from django.db import transaction
+
+from django.db import IntegrityError
 
 @login_required
-@transaction.atomic
 def add_hotel(request):
     if request.method == 'POST':
         hotel_form = HotelForm(request.POST, request.FILES)
 
         if hotel_form.is_valid():
             try:
+                # Save the form without committing to create a new instance
                 hotel_instance = hotel_form.save(commit=False)
+
+                # Set the manager to the currently logged-in user
                 hotel_instance.manager = request.user
+
+                # Save the hotel instance to get a valid primary key
                 hotel_instance.save()
 
-                amenities = request.POST.getlist('amenities')
-                hotel_instance.amenities.set(Amenity.objects.filter(id__in=amenities))
+                print(f'Hotel instance saved with ID: {hotel_instance.id}')
 
+                # Handle amenities
+                amenities = request.POST.getlist('amenities')
+                for amenity_id in amenities:
+                    amenity = get_object_or_404(Amenity, id=amenity_id)
+                    hotel_instance.amenities.add(amenity)
+
+                # Handle other_photos
                 other_photos = request.FILES.getlist('other_photos')
                 for photo in other_photos:
                     try:
+                        # Save each photo separately and add to the hotel_instance
                         photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
                         hotel_instance.other_photos.add(photo_instance)
                     except Exception as e:
+                        # Handle exceptions during photo upload
                         messages.error(request, f'Error uploading photo: {e}')
 
+                # Save the instance with the updated amenities and other_photos
                 hotel_instance.save()
 
                 messages.success(request, 'Hotel added successfully!')
                 return redirect('hotel_your_choice:view_hotels')
-            except Exception as e:
+            except IntegrityError as e:
                 messages.error(request, f'Error adding hotel: {e}')
         else:
             messages.error(request, 'Error adding hotel. Please check the form.')
@@ -181,6 +195,7 @@ def add_hotel(request):
         'hotel_your_choice/hotel_manager/add_hotel.html',
         {'hotel_form': hotel_form, 'amenities': amenities}
     )
+
 
 
 def handle_photo_upload(request, hotel_instance, other_photos):
