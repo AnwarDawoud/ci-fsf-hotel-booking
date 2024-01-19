@@ -89,7 +89,7 @@
 #     # other backends if needed
 # ]
  # MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
- import os
+import os
 from pathlib import Path import dj_database_url
 from decouple import config
 from django.db import DatabaseError BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) ON_HEROKU = config('ON_HEROKU', default=False, cast=bool) SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i' # Set DEBUG based on the environment
