@@ -71,8 +71,6 @@ def delete_comment(request, comment_id):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-
-
 def add_comment(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
     form = CommentForm()  # Move the form initialization outside the 'POST' block for GET requests
@@ -121,9 +119,8 @@ def delete_experience(request, booking_id):
 
     return HttpResponse("Method not allowed", status=405)
         
+
 # Hotel Manager Views
-
-
 @login_required
 def hotel_manager_dashboard(request):
     hotels_managed = Hotel.objects.filter(manager=request.user)
@@ -198,7 +195,6 @@ def add_hotel(request):
         'hotel_your_choice/hotel_manager/add_hotel.html',
         {'hotel_form': hotel_form, 'amenities': amenities}
     )
-
 
 
 def handle_photo_upload(request, hotel_instance, other_photos):
