@@ -1,0 +1,5 @@
+id,password,last_login,is_superuser,username,first_name,last_name,email,is_staff,is_active,date_joined,profile_picture,is_hotel_manager,is_client_user,is_administrator,reset_token
+1,pbkdf2_sha256$260000$TjGcXouruKKoC6FYcAZrra$1zR7215Tn6JvESTOedeIDuJ9hhY82O9o973h18e6HvM=,2024-01-18 10:41:41.119350,1,Admin,,,pp4-siteowner@hotmail.com,1,1,2023-12-30 22:06:23,,0,0,1,
+2,pbkdf2_sha256$720000$ly3Go4cPfYAB6zPTid0zGU$ZhRDNqTtJDpDfT5MRwgmaSTohIDJyxLFknQTPK35epw=,2024-01-18 13:52:49.130372,0,HotelManager01,Hotel Manager,01,hotelmanager01@hotmail.com,0,1,2023-12-30 22:23:36,,1,0,0,
+5,pbkdf2_sha256$720000$z2BqKWxzJXFgpQgcKF0VH5$CbrXSZbJ0BkRyIwQMs2VF4BVYSORGc4iuk6RTIrjsO4=,2024-01-14 00:13:47.663996,0,HotelUser01,HotelUser,01,hoteluser01@hotmail.com,0,1,2024-01-06 14:16:08,,0,1,0,
+6,pbkdf2_sha256$720000$29SODi4SEkLS3uFjM6tJsT$U/WsaWCLcxrlDX+sfXlLwDG+a56vVsSzy48kA90H4lQ=,2024-01-13 15:26:21.019744,0,HotelUser02,HotelUser,02,hoteluser01@hotmail.com,0,1,2024-01-06 14:19:13,,0,1,0,

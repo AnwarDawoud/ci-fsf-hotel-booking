@@ -71,8 +71,11 @@ def delete_comment(request, comment_id):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+
+
 def add_comment(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
+    form = CommentForm()  # Move the form initialization outside the 'POST' block for GET requests
 
     if request.method == 'POST':
         form = CommentForm(request.POST)
