@@ -7,6 +7,7 @@ from django.db.models import Avg
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from .choices import RATING_CHOICES
+from django.utils import timezone
 from datetime import datetime
 from django.db import models
 

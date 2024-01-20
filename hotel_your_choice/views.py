@@ -20,6 +20,7 @@ from django.views import View
 from .models import Hotel, Booking, Rating, Comment
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
