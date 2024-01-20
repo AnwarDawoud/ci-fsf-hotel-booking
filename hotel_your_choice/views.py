@@ -549,6 +549,10 @@ def rate_experience(request, booking_id):
     # Check if the user has already rated this booking
     existing_rating = Rating.objects.filter(booking=booking, user=user).first()
 
+    if existing_rating:
+        messages.warning(request, 'You have already rated this booking. Rating update is not allowed.')
+        return redirect('hotel_your_choice:view_hotels')  # Change this to the appropriate URL
+
     if request.method == 'POST':
         form = RatingForm(request.POST)
 
@@ -556,29 +560,17 @@ def rate_experience(request, booking_id):
             rating_value = form.cleaned_data['rating']
             text = form.cleaned_data['text']
 
-            if existing_rating:
-                # Update the existing rating
-                existing_rating.rating = rating_value
-                existing_rating.text = text
-                existing_rating.save()
-                messages.success(request, 'Rating updated successfully.')
-            else:
-                # Create a new rating
-                new_rating = Rating(booking=booking, user=user, rating=rating_value, text=text)
-                new_rating.save()
-                messages.success(request, 'Rating added successfully.')
+            # Create a new rating
+            new_rating = Rating(booking=booking, user=user, rating=rating_value, text=text)
+            new_rating.save()
+            messages.success(request, 'Rating added successfully.')
 
             return redirect('hotel_your_choice:view_hotels')  # Change this to the appropriate URL
+
     else:
-        # If the user has already rated, pre-fill the form
-        form_data = {'rating': existing_rating.rating, 'text': existing_rating.text} if existing_rating else None
-        form = RatingForm(initial=form_data)
+        form = RatingForm()
 
     return render(request, 'hotel_your_choice/client/rate_experience.html', {'booking': booking, 'form': form})
-
-
-
-
    
 
 def hotel_detail(request, hotel_id):
