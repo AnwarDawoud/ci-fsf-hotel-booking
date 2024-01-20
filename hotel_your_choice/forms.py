@@ -6,6 +6,10 @@ from .models import Booking, CustomUser, Hotel, Comment, Rating, Amenity, Photo
 from .choices import RATING_CHOICES  # Fix the import
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth import get_user_model
+from django.utils import timezone  
+from django.core.exceptions import ValidationError
+from multiupload.fields import MultiFileField
+
 
 class ModifyBookingForm(forms.ModelForm):
     class Meta:
@@ -36,10 +40,7 @@ class YourBookingForm(forms.ModelForm):
 
 
 
-from django import forms
-from django.core.exceptions import ValidationError
-from multiupload.fields import MultiFileField
-from .models import Hotel, Amenity
+
 
 class HotelForm(forms.ModelForm):
     youtube_video_url = forms.URLField(label='YouTube Video URL', required=False)
