@@ -71,63 +71,47 @@ def delete_comment(request, comment_id):
         return JsonResponse({'success': False, 'error': str(e)})
 
 
+from django.utils import timezone
+
 def add_comment(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
-    form = CommentForm()  # Move the form initialization outside the 'POST' block for GET requests
 
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.booking = booking
+
+            # Set the timestamp field explicitly before saving
+            comment.timestamp = timezone.now()
+
             comment.save()
 
             # Update like and dislike counts
-            likes_count = comment.likes_count  # Update based on your actual comment model
-            dislikes_count = comment.dislikes_count  # Update based on your actual comment model
+            likes_count = comment.likes_count
+            dislikes_count = comment.dislikes_count
 
             return JsonResponse({
                 'status': 'success',
                 'comment_id': comment.id,
                 'comment_text': comment.text,
                 'likes_count': likes_count,
-                'dislikes_count': dislikes_count
+                'dislikes_count': dislikes_count,
             })
 
     return JsonResponse({'status': 'error', 'errors': form.errors})
-
-from django.utils import timezone
-from django.utils.dateparse import parse_datetime
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 
 def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.likes_count += 1
     comment.save()
-
-    # Update the timestamp when the comment is liked
-    comment.timestamp = timezone.now()
-    comment.save()
-
-    return JsonResponse({
-        'likes_count': comment.likes_count,
-        'timestamp': comment.timestamp.isoformat(),  # Include the timestamp in the response
-    })
+    return JsonResponse({'likes_count': comment.likes_count})
 
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.dislikes_count += 1
     comment.save()
-
-    # Update the timestamp when the comment is disliked
-    comment.timestamp = timezone.now()
-    comment.save()
-
-    return JsonResponse({
-        'dislikes_count': comment.dislikes_count,
-        'timestamp': comment.timestamp.isoformat(),  # Include the timestamp in the response
-    })
+    return JsonResponse({'dislikes_count': comment.dislikes_count})
 
 def delete_experience(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)

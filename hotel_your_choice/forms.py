@@ -100,7 +100,18 @@ class RatingForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        exclude = ['id', 'timestamp']
+        fields = ['text', 'rating']  # Add or remove fields as needed
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].widget = forms.Textarea(attrs={'rows': 3})  # Customize widget if needed
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.timestamp = timezone.now()  # Set the timestamp automatically
+        if commit:
+            instance.save()
+        return instance
     
 class RescheduleForm(forms.Form):
     new_check_in_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
