@@ -96,18 +96,38 @@ def add_comment(request, booking_id):
 
     return JsonResponse({'status': 'error', 'errors': form.errors})
 
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+
 def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.likes_count += 1
     comment.save()
-    return JsonResponse({'likes_count': comment.likes_count})
 
+    # Update the timestamp when the comment is liked
+    comment.timestamp = timezone.now()
+    comment.save()
+
+    return JsonResponse({
+        'likes_count': comment.likes_count,
+        'timestamp': comment.timestamp.isoformat(),  # Include the timestamp in the response
+    })
 
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.dislikes_count += 1
     comment.save()
-    return JsonResponse({'dislikes_count': comment.dislikes_count})
+
+    # Update the timestamp when the comment is disliked
+    comment.timestamp = timezone.now()
+    comment.save()
+
+    return JsonResponse({
+        'dislikes_count': comment.dislikes_count,
+        'timestamp': comment.timestamp.isoformat(),  # Include the timestamp in the response
+    })
 
 def delete_experience(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
