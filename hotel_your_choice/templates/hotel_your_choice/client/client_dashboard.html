@@ -22,7 +22,7 @@
 {% for booking in bookings %}
 <div>
     <h3>Booking ID: {{ booking.id }}</h3>
-    <p>Hotel Name: {{ booking.hotel_name }}</p>
+    <p>Hotel Name: {{ booking.hotel.name }}</p>
     <p>Check-in: {{ booking.check_in_date }} - Check-out: {{ booking.check_out_date }}</p>
     <!-- Add other booking information as needed -->
 

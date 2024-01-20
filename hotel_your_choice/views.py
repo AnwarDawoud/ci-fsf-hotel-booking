@@ -485,9 +485,6 @@ def client_dashboard(request):
         user=request.user,
     ).exclude(status='canceled')
 
-# Use F expression to reference the hotel name without querying the database again
-    active_and_rescheduled_bookings = active_and_rescheduled_bookings.annotate(hotel_name=F('hotel__name'))
-    
     if request.method == 'POST':
         action = request.POST.get('action')
         booking_id = request.POST.get('booking_id')
