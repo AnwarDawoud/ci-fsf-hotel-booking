@@ -485,6 +485,9 @@ def client_dashboard(request):
         user=request.user,
     ).exclude(status='canceled')
 
+# Use F expression to reference the hotel name without querying the database again
+    active_and_rescheduled_bookings = active_and_rescheduled_bookings.annotate(hotel_name=F('hotel__name'))
+    
     if request.method == 'POST':
         action = request.POST.get('action')
         booking_id = request.POST.get('booking_id')
@@ -551,7 +554,7 @@ def rate_experience(request, booking_id):
 
     if existing_rating:
         messages.warning(request, 'You have already rated this booking. Rating update is not allowed.')
-        return redirect('hotel_your_choice:view_hotels')  # Change this to the appropriate URL
+        return redirect('hotel_your_choice:client_dashboard')  # Change this to the appropriate URL for the client dashboard
 
     if request.method == 'POST':
         form = RatingForm(request.POST)
@@ -571,7 +574,7 @@ def rate_experience(request, booking_id):
         form = RatingForm()
 
     return render(request, 'hotel_your_choice/client/rate_experience.html', {'booking': booking, 'form': form})
-   
+
 
 def hotel_detail(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
