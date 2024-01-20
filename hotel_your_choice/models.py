@@ -4,13 +4,10 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Avg
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 from .choices import RATING_CHOICES
 from django.utils import timezone
 from datetime import datetime
-from django.db import models
-
 
 
 class CustomUser(AbstractUser):
@@ -153,12 +150,17 @@ class UserRating(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 
+
 class Rating(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     booking = models.ForeignKey('hotel_your_choice.Booking', on_delete=models.CASCADE, related_name='ratings')
     rating = models.IntegerField(choices=RATING_CHOICES)
     text = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        # Add a unique constraint to prevent multiple ratings for the same user and booking
+        unique_together = ('user', 'booking')
 
     def __str__(self):
         return f"Rating for {self.booking} by {self.user.username}"
