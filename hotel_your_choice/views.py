@@ -105,12 +105,20 @@ def add_comment(request, booking_id):
 def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.likes_count += 1
+
+    # Update the timestamp field
+    comment.timestamp = timezone.now()
+
     comment.save()
     return JsonResponse({'likes_count': comment.likes_count})
 
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.dislikes_count += 1
+
+    # Update the timestamp field
+    comment.timestamp = timezone.now()
+
     comment.save()
     return JsonResponse({'dislikes_count': comment.dislikes_count})
 
