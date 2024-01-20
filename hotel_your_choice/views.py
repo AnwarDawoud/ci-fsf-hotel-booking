@@ -3,7 +3,7 @@ from urllib.parse import quote
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Comment, CustomUser, Hotel, Booking, Photo, UserActivity, Rating, Amenity
 from .forms import YourBookingForm, CustomRegistrationForm, HotelForm, RatingForm, CommentForm  # Import CommentForm
 import logging
@@ -13,8 +13,6 @@ from django.db.models import Sum, Avg
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_GET, require_http_methods
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views import View
 from .models import Hotel, Booking, Rating, Comment
@@ -541,6 +539,8 @@ def client_dashboard(request):
     context = {'bookings': active_and_rescheduled_bookings, 'booking_form': YourBookingForm()}
     return render(request, 'hotel_your_choice/client/client_dashboard.html', context)
 
+
+
 @login_required
 def rate_experience(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
@@ -555,8 +555,6 @@ def rate_experience(request, booking_id):
         if form.is_valid():
             rating_value = form.cleaned_data['rating']
             text = form.cleaned_data['text']
-            # Print or log the values for debugging
-            print(f"Rating Text: {text}")
 
             if existing_rating:
                 # Update the existing rating
@@ -577,6 +575,7 @@ def rate_experience(request, booking_id):
         form = RatingForm(initial=form_data)
 
     return render(request, 'hotel_your_choice/client/rate_experience.html', {'booking': booking, 'form': form})
+
 
 
 
