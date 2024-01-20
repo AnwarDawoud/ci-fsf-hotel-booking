@@ -9,13 +9,27 @@
 
 {# Display user-specific information or greetings #}
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
-        {% endfor %}
-</ul>
-{% endif %}
+<!-- Modal for displaying messages -->
+<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                        {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Your Bookings -->
 <h2>Your Bookings:</h2>
@@ -52,6 +66,20 @@
 <!-- Add other content as needed -->
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+{% if messages %}
+<script>
+    document.addEventListener( 'DOMContentLoaded', function ()
+    {
+        $( '#messageModal' ).modal( 'open' );
+    } );
+
+    // Function to close the modal
+    function closeModal ()
+    {
+        $( '#messageModal' ).modal( 'close' );
+    }
+</script>
+{% endif %}
 <script>
     flatpickr( "#newCheckInDate", { dateFormat: "Y-m-d" } );
     flatpickr( "#newCheckOutDate", { dateFormat: "Y-m-d" } );

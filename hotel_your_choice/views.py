@@ -540,7 +540,6 @@ def client_dashboard(request):
     return render(request, 'hotel_your_choice/client/client_dashboard.html', context)
 
 
-
 @login_required
 def rate_experience(request, booking_id):
     booking = get_object_or_404(Booking, pk=booking_id)
@@ -565,7 +564,11 @@ def rate_experience(request, booking_id):
             new_rating.save()
             messages.success(request, 'Rating added successfully.')
 
-            return redirect('hotel_your_choice:view_hotels')  # Change this to the appropriate URL
+            # You can adjust the redirect based on your requirements
+            return redirect('hotel_your_choice:client_dashboard')  # Change this to the appropriate URL
+
+        else:
+            messages.error(request, 'Invalid rating form. Please try again.')
 
     else:
         form = RatingForm()
