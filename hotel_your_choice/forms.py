@@ -100,7 +100,7 @@ class RatingForm(forms.Form):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        exclude = ['id']
+        exclude = ['id', 'timestamp']
     
 class RescheduleForm(forms.Form):
     new_check_in_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
