@@ -2,12 +2,7 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'hotel_your_choice_css/edit_hotel.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-<style>
-    /* Add your additional styles here */
-</style>
 
 <h1 class="center-align">Add Hotel</h1>
 
@@ -93,6 +88,8 @@
 
             <button type="submit" class="btn waves-effect waves-light">Add Hotel</button>
         </form>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="path/to/chosen.jquery.js"></script>
         <script>
             document.addEventListener( 'DOMContentLoaded', function ()
             {
