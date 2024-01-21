@@ -629,8 +629,15 @@ def register_view(request):
     if request.method == 'POST':
         form = CustomRegistrationForm(request.POST)
         if form.is_valid():
+            # Get the next available user ID
+            next_user_id = CustomUser.objects.order_by('-id').first().id + 1 if CustomUser.objects.exists() else 1
+
+            # Set the ID in the form data
+            form.cleaned_data['id'] = next_user_id
+
             user = form.save(commit=False)
             user.save()
+
             messages.success(request, f"Welcome, {user.username}! You are now registered.")
             return redirect('hotel_your_choice:view_hotels')
         else:
@@ -638,7 +645,7 @@ def register_view(request):
     else:
         form = CustomRegistrationForm()
 
-    return render(request, r'hotel_your_choice/register.html', {'form': form})
+    return render(request, 'hotel_your_choice/register.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
