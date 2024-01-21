@@ -255,6 +255,10 @@ def edit_hotel(request, hotel_id):
 
             # Handle other_photos
             other_photos = request.FILES.getlist('other_photos')
+
+            # Clear existing photos
+            hotel_instance.other_photos.clear()
+
             for photo in other_photos:
                 # Save each photo separately and add to the hotel_instance
                 photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
@@ -278,6 +282,7 @@ def edit_hotel(request, hotel_id):
         'hotel_your_choice/hotel_manager/edit_hotel.html',
         {'hotel_form': hotel_form, 'hotel': hotel_instance, 'amenities': amenities}
     )
+
 
    
 from django.shortcuts import render, get_object_or_404
