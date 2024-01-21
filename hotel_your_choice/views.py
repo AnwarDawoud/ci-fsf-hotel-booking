@@ -230,22 +230,22 @@ def delete_hotel(request, hotel_id):
 
     return redirect('hotel_your_choice:view_hotels')
 
+@login_required
 def edit_hotel(request, hotel_id):
-    hotel = get_object_or_404(Hotel, id=hotel_id)
+    # Retrieve the existing hotel instance or return a 404 response if not found
+    hotel_instance = get_object_or_404(Hotel, id=hotel_id)
 
     if request.method == 'POST':
-        hotel_form = HotelForm(request.POST, request.FILES, instance=hotel)
+        # If the form is being submitted, populate it with the POST data and instance
+        hotel_form = HotelForm(request.POST, request.FILES, instance=hotel_instance)
 
         if hotel_form.is_valid():
-            # Save the form without committing to update the instance
-            hotel_instance = hotel_form.save(commit=False)
+            # Save the form, updating the existing hotel instance
+            hotel_form.save()
 
-            # Handle amenities
+            # Handle amenities (clear existing and add selected)
             amenities = request.POST.getlist('amenities')
-            hotel_instance.amenities.clear()  # Clear existing amenities
-            for amenity_id in amenities:
-                amenity = Amenity.objects.get(id=amenity_id)
-                hotel_instance.amenities.add(amenity)
+            hotel_instance.amenities.set(amenities)
 
             # Handle other_photos
             other_photos = request.FILES.getlist('other_photos')
@@ -262,14 +262,15 @@ def edit_hotel(request, hotel_id):
         else:
             messages.error(request, 'Error editing hotel. Please check the form.')
     else:
-        hotel_form = HotelForm(instance=hotel)
+        # If it's a GET request, render the form with the existing hotel data
+        hotel_form = HotelForm(instance=hotel_instance)
 
     amenities = Amenity.objects.all()
 
     return render(
         request,
         'hotel_your_choice/hotel_manager/edit_hotel.html',
-        {'hotel_form': hotel_form, 'hotel': hotel, 'amenities': amenities}
+        {'hotel_form': hotel_form, 'hotel': hotel_instance, 'amenities': amenities}
     )
    
 from django.shortcuts import render, get_object_or_404
