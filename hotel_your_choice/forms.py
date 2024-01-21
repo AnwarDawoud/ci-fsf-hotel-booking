@@ -67,6 +67,19 @@ class HotelForm(forms.ModelForm):
             if photo.size > 5 * 1024 * 1024:  # 5 MB
                 raise ValidationError('File size should be no more than 5 MB.')
         return other_photos
+
+    def save(self, commit=True):
+        hotel_instance = super().save(commit=False)
+
+        # Handle existing photos during editing
+        if hotel_instance.id:
+            existing_photos = Photo.objects.filter(hotel=hotel_instance)
+            hotel_instance.other_photos.set(existing_photos)
+
+        if commit:
+            hotel_instance.save()
+
+        return hotel_instance
     
 
 class CustomRegistrationForm(UserCreationForm):

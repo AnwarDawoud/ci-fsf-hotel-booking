@@ -30,6 +30,7 @@ class Amenity(models.Model):
         return self.name
 
 class Photo(models.Model):
+    id = models.AutoField(primary_key=True)
     image = models.ImageField(upload_to='hotel_photos/')
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE)
 
