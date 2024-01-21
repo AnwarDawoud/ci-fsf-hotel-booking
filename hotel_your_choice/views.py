@@ -230,22 +230,28 @@ def delete_hotel(request, hotel_id):
 
     return redirect('hotel_your_choice:view_hotels')
 
+from django.shortcuts import get_object_or_404
+
 @login_required
 def edit_hotel(request, hotel_id):
-    # Retrieve the existing hotel instance or return a 404 response if not found
     hotel_instance = get_object_or_404(Hotel, id=hotel_id)
 
     if request.method == 'POST':
-        # If the form is being submitted, populate it with the POST data and instance
         hotel_form = HotelForm(request.POST, request.FILES, instance=hotel_instance)
 
         if hotel_form.is_valid():
-            # Save the form, updating the existing hotel instance
-            hotel_form.save()
+            # Save the form without committing to update the instance
+            hotel_instance = hotel_form.save(commit=False)
 
-            # Handle amenities (clear existing and add selected)
+            # Handle amenities
             amenities = request.POST.getlist('amenities')
-            hotel_instance.amenities.set(amenities)
+            hotel_instance.amenities.clear()  # Clear existing amenities
+            for amenity_id in amenities:
+                amenity = Amenity.objects.get(id=amenity_id)
+                hotel_instance.amenities.add(amenity)
+
+            # Save the instance with the updated amenities
+            hotel_instance.save()
 
             # Handle other_photos
             other_photos = request.FILES.getlist('other_photos')
@@ -254,7 +260,7 @@ def edit_hotel(request, hotel_id):
                 photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
                 hotel_instance.other_photos.add(photo_instance)
 
-            # Save the instance with the updated amenities and other_photos
+            # Save the instance with the updated other_photos
             hotel_instance.save()
 
             messages.success(request, 'Hotel edited successfully!')
@@ -272,6 +278,7 @@ def edit_hotel(request, hotel_id):
         'hotel_your_choice/hotel_manager/edit_hotel.html',
         {'hotel_form': hotel_form, 'hotel': hotel_instance, 'amenities': amenities}
     )
+
    
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
