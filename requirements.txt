@@ -5,15 +5,12 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 cloudinary==1.38.0
-
-cloudinary-storage
 colorama==0.4.6
 cryptography==41.0.7
 defusedxml==0.7.1
 dj-database-url==2.1.0
 django==3.2.23
-django-storages
-django-storages==1.11.1
+django-storages==1.14.2
 django-extra-views==0.14.0
 django-multiupload>=0.6,<0.7
 django-on-heroku==1.1.2
