@@ -63,15 +63,13 @@ TEMPLATES = [
     },
 ]
 
+# Database configuration
 if ON_HEROKU:
     DATABASE_URL = os.environ.get('DATABASE_URL')
 else:
-    # Database configuration
-    DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'))
+    DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 
-DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL),
-}
+DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 # Parse the CLOUDINARY_URL to get cloud name, API key, and API secret
 cloudinary.config(
