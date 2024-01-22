@@ -1,11 +1,11 @@
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 import os
 from pathlib import Path
 import dj_database_url
 from decouple import config
-# Add Cloudinary configuration
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+
 from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
