@@ -1,25 +1,25 @@
-import cloudinary
 import os
 from pathlib import Path
 import dj_database_url
 from decouple import config
-from storages.backends import cloudinary_storage
-from django.core.management.utils import get_random_secret_key
+from django.db import DatabaseError
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Determine if the app is running on Heroku
-ON_HEROKU = 'DYNO' in os.environ
-
-# Determine DEBUG based on the environment
-DEBUG = config('DEBUG', default=True, cast=bool) if not ON_HEROKU else False
-
-# Determine ALLOWED_HOSTS based on the environment
-ALLOWED_HOSTS = ['mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com'] if not DEBUG else ['*']
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+ON_HEROKU = config('ON_HEROKU', default=False, cast=bool)
 
-SECRET_KEY = config('SECRET_KEY', default=get_random_secret_key())
+
+SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
+# Set DEBUG based on the environment
+DEBUG = not ON_HEROKU  # True if local, False if on Heroku
+
+
+ALLOWED_HOSTS = [
+    'mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com',
+    '.localhost',
+    '127.0.0.1'
+]
 
 
 INSTALLED_APPS = [
@@ -30,8 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.auth',
     'multiupload',
-    'storages',
-    'hotel_your_choice.apps.YourAppConfig',
+    'hotel_your_choice'
 ]
 
 MIDDLEWARE = [
@@ -42,7 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'hotels_booking.urls'
@@ -57,49 +56,61 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.contrib.messages.context_processors.messages'
             ],
         },
     },
 ]
 
-# Database configuration
+# Update the existing DATABASES configuration
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',  # Change this based on your database
+#         'NAME': BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# DATABASES = {
+#    'default': dj_database_url.config(
+#        default=os.environ.get('postgres://hlrhzayn:uoZO905t2N8tM93SJQw8Jrcl2INj1lmk@horton.db.elephantsql.com/hlrhzayn')
+#    )
+# }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'hlrhzayn',
+#         'PASSWORD': 'uoZO905t2N8tM93SJQw8Jrcl2INj1lmk',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+ON_HEROKU = os.environ.get('ON_HEROKU')
+HEROKU_SERVER = os.environ.get('HEROKU_SERVER')
+
 if ON_HEROKU:
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = 'postgresql://hlrhzayn:uoZO905t2N8tM93SJQw8Jrcl2INj1lmk@horton.db.elephantsql.com/hlrhzayn'
 else:
     DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 
 DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
-# Parse the CLOUDINARY_URL to get cloud name, API key, and API secret
-cloudinary.config(
-    cloud_name=config('CLOUDINARY_CLOUD_NAME', default=''),
-    api_key=config('CLOUDINARY_API_KEY', default=''),
-    api_secret=config('CLOUDINARY_API_SECRET', default=''),
-)
-
-# Cloudinary storage configuration
-if ON_HEROKU:
-    # Use Cloudinary storage on Heroku
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-else:
-    # Use local storage configuration
-    MEDIA_URL = '/media/'
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-
 # Other settings (Email, Static files, etc.) remain unchanged
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'hotel_your_choice/static')]
+STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'hotel_your_choice/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Change the login URL to use the default Django login URL
-LOGIN_URL = 'login'
+LOGIN_URL = 'login'  # Use the default Django login URL
 
-# Use the default Django login URL
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -108,17 +119,3 @@ AUTHENTICATION_BACKENDS = [
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
-    },
-}
