@@ -7,7 +7,7 @@ from django.db import DatabaseError
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-ON_HEROKU = config('ON_HEROKU', default=False, cast=bool)
+ON_HEROKU = config('ON_HEROKU', default=True, cast=bool)
 
 
 SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
