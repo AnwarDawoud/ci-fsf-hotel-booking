@@ -17,7 +17,7 @@ ON_HEROKU = 'DYNO' in os.environ
 DEBUG = config('DEBUG', default=True, cast=bool) if not ON_HEROKU else False
 
 # Determine ALLOWED_HOSTS based on the environment
-ALLOWED_HOSTS = ['ysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com'] if not DEBUG else ['*']
+ALLOWED_HOSTS = ['mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com'] if not DEBUG else ['*']
 
 
 
