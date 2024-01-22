@@ -2,16 +2,26 @@ import os
 from pathlib import Path
 import dj_database_url
 from decouple import config
+# Add Cloudinary configuration
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+# Determine if the app is running on Heroku
+ON_HEROKU = 'DYNO' in os.environ
 
-ALLOWED_HOSTS = ['*'] if DEBUG else ['127.0.0.1']
+# Determine DEBUG based on the environment
+DEBUG = config('DEBUG', default=True, cast=bool) if not ON_HEROKU else False
 
-ON_HEROKU = 'ON_HEROKU' in os.environ
+# Determine ALLOWED_HOSTS based on the environment
+ALLOWED_HOSTS = ['*'] if DEBUG else [config('PRODUCTION_HOST', default='mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com')]
 
-SECRET_KEY = '9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i'
+
+SECRET_KEY = config('SECRET_KEY', default='9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i')
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -56,20 +66,22 @@ TEMPLATES = [
 
 # Database configuration
 if ON_HEROKU:
-    DATABASE_URL = 'postgres://hlrhzayn:ONeyuDV91QpQjURHFU2uVG-h8NeXJbAQ@horton.db.elephantsql.com/hlrhzayn'
+    DATABASE_URL = os.environ.get('DATABASE_URL')
 else:
     DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 
 DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
+# Parse the CLOUDINARY_URL to get cloud name, API key, and API secret
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME', default=''),
+    api_key=config('CLOUDINARY_API_KEY', default=''),
+    api_secret=config('CLOUDINARY_API_SECRET', default=''),
+)
+
 # Cloudinary storage configuration
 if ON_HEROKU:
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': 'dwx1bznpt',
-        'API_KEY': '338398261551869',
-        'API_SECRET': 'pOkhHikI8cdt4NDAlWeSOt5qVVI',
-        'SECURE_URLS': True,
-    }
+    # Use Cloudinary storage on Heroku
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 else:
     # Use local storage configuration
