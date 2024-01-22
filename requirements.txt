@@ -12,7 +12,8 @@ defusedxml==0.7.1
 dj-database-url==2.1.0
 django==3.2.23
 django-storages
-django-cloudinary-storage
+cloudinary-storage==0.4.0
+django-storages==1.11.1
 
 django-extra-views==0.14.0
 django-multiupload>=0.6,<0.7
