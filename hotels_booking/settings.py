@@ -6,7 +6,7 @@ from decouple import config
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
-
+from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -17,10 +17,11 @@ ON_HEROKU = 'DYNO' in os.environ
 DEBUG = config('DEBUG', default=True, cast=bool) if not ON_HEROKU else False
 
 # Determine ALLOWED_HOSTS based on the environment
-ALLOWED_HOSTS = ['*'] if DEBUG else [config('PRODUCTION_HOST', default='mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com')]
+ALLOWED_HOSTS = ['ysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com'] if not DEBUG else ['*']
 
 
-SECRET_KEY = config('SECRET_KEY', default='9q=3tig&^s7zoq@16ir2hz-q$+af^9tqy7=v^_b&i!uf0q8$%i')
+
+SECRET_KEY = config('SECRET_KEY', default=get_random_secret_key())
 
 
 INSTALLED_APPS = [
@@ -108,3 +109,18 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
