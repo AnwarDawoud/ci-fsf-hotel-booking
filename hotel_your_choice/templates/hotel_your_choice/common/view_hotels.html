@@ -19,8 +19,9 @@
             <div class="card horizontal">
                 <div class="card-image">
                     {% if hotel.main_photo %}
-                    <img src="{% cloudinary hotel.main_photo.url %}" alt="{{ hotel.name }} Photo"
-                        class="responsive-img">
+                    <img src="{% cloudinary photo.image.url %}" alt="{{ hotel.name }} Other Photo"
+                        onclick="showEnlarged('{{ photo.image.url|safe }}', '{{ hotel.id }}', '{{ forloop.counter0 }}')"
+                        data-hotel-id="{{ hotel.id }}">
                     {% endif %}
                 </div>
                 {% if user.is_authenticated %}
@@ -71,10 +72,9 @@
                             <h5>More Photos:</h5>
                             <div class="other-photos" id="otherPhotos{{ hotel.id }}">
                                 {% for photo in hotel.other_photos.all %}
-                                <img src="{% cloudinary photo.image.url %}" alt="{{ hotel.name }} Other Photo">
-                                onclick="showEnlarged('{{ photo.image.url }}', '{{ hotel.id }}',
-                                '{{ forloop.counter0 }}')"
-                                data-hotel-id="{{ hotel.id }}">
+                                <img src="{% cloudinary photo.image.url %}" alt="{{ hotel.name }} Other Photo"
+                                    onclick="showEnlarged('{{ photo.image.url }}', '{{ hotel.id }}', '{{ forloop.counter0 }}')"
+                                    data-hotel-id="{{ hotel.id }}">
                                 {% endfor %}
                             </div>
                             <button id="showPhotosButton{{ hotel.id }}"
