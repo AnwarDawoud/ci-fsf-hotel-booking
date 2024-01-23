@@ -144,13 +144,15 @@ def hotel_manager_dashboard(request):
     return render(request, 'hotel_your_choice/hotel_manager/dashboard.html', {'bookings': bookings})
 
 
+
+
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from .forms import HotelForm
-from .models import Amenity, Photo
-
 from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
+from .models import Hotel, Amenity, Photo
+from .forms import HotelForm
 
 @login_required
 def add_hotel(request):
@@ -168,27 +170,13 @@ def add_hotel(request):
                 # Save the hotel instance to get a valid primary key
                 hotel_instance.save()
 
-                print(f'Hotel instance saved with ID: {hotel_instance.id}')
-
                 # Handle amenities
                 amenities = request.POST.getlist('amenities')
-                for amenity_id in amenities:
-                    amenity = get_object_or_404(Amenity, id=amenity_id)
-                    hotel_instance.amenities.add(amenity)
+                hotel_instance.amenities.set(Amenity.objects.filter(id__in=amenities))
 
                 # Handle other_photos
                 other_photos = request.FILES.getlist('other_photos')
-                for photo in other_photos:
-                    try:
-                        # Save each photo separately and add to the hotel_instance
-                        photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
-                        hotel_instance.other_photos.add(photo_instance)
-                    except Exception as e:
-                        # Handle exceptions during photo upload
-                        messages.error(request, f'Error uploading photo: {e}')
-
-                # Save the instance with the updated amenities and other_photos
-                hotel_instance.save()
+                handle_photo_upload(request, hotel_instance, other_photos)
 
                 messages.success(request, 'Hotel added successfully!')
                 return redirect('hotel_your_choice:view_hotels')
@@ -207,30 +195,25 @@ def add_hotel(request):
         {'hotel_form': hotel_form, 'amenities': amenities}
     )
 
-
 def handle_photo_upload(request, hotel_instance, other_photos):
-    for photo in other_photos:
-        try:
-            photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
-            hotel_instance.other_photos.add(photo_instance)
-        except Exception as e:
-            messages.error(request, f'Error uploading photo: {e}')
-
-
+    photo_instances = [Photo(image=photo, hotel=hotel_instance) for photo in other_photos]
+    try:
+        Photo.objects.bulk_create(photo_instances)
+        hotel_instance.other_photos.add(*photo_instances)
+    except Exception as e:
+        messages.error(request, f'Error uploading photos: {e}')
 
 @login_required
 def delete_hotel(request, hotel_id):
-    hotel = get_object_or_404(Hotel, id=hotel_id)
+    hotel_instance = get_object_or_404(Hotel, id=hotel_id)
 
-    if request.user == hotel.manager:
-        hotel.delete()
+    if request.user == hotel_instance.manager:
+        hotel_instance.delete()
         messages.success(request, 'Hotel deleted successfully!')
     else:
         messages.error(request, 'You do not have permission to delete this hotel.')
 
     return redirect('hotel_your_choice:view_hotels')
-
-from django.shortcuts import get_object_or_404
 
 @login_required
 def edit_hotel(request, hotel_id):
@@ -282,6 +265,7 @@ def edit_hotel(request, hotel_id):
         'hotel_your_choice/hotel_manager/edit_hotel.html',
         {'hotel_form': hotel_form, 'hotel': hotel_instance, 'amenities': amenities}
     )
+
 
 
    
