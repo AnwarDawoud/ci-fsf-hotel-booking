@@ -31,10 +31,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'django.contrib.auth',
     'multiupload',
-    'storages',
     'hotel_your_choice.apps.YourAppConfig',
 ]
 
@@ -46,8 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-]
+    ]
 
 ROOT_URLCONF = 'hotels_booking.urls'
 
@@ -77,19 +77,17 @@ DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 
 
-# Other settings (Email, Static files, etc.) remain unchanged
+MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+ 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'hotel_your_choice/static')]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
-# Change the login URL to use the default Django login URL
 LOGIN_URL = 'login'
 
 # Use the default Django login URL
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
