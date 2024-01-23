@@ -61,11 +61,18 @@ class HotelForm(forms.ModelForm):
 
     def clean_other_photos(self):
         other_photos = self.cleaned_data.get('other_photos', [])
+
+        # Clear existing photos to avoid duplicates
+        self.instance.other_photos.clear()
+
         for photo in other_photos:
-            if photo.content_type not in ['image/jpeg', 'image/png']:
-                raise ValidationError('Only JPEG and PNG images are allowed.')
-            if photo.size > 5 * 1024 * 1024:  # 5 MB
-                raise ValidationError('File size should be no more than 5 MB.')
+            try:
+                # Create a new Photo instance and link it to the current Hotel instance
+                photo_instance = Photo.objects.create(image=photo, hotel=self.instance)
+                self.instance.other_photos.add(photo_instance)
+            except Exception as e:
+                raise ValidationError(f'Error uploading photo: {e}')
+
         return other_photos
 
     def save(self, commit=True):
