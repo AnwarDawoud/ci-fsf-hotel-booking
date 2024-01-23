@@ -11,6 +11,7 @@ from django.contrib.auth.views import PasswordResetDoneView
 from .views import view_hotels, generate_excel, manage_bookings
 from .views import edit_hotel, delete_hotel
 
+
 # hotels_booking/hotel_your_choice/urls.py
 
 app_name = 'hotel_your_choice'
@@ -96,4 +97,4 @@ urlpatterns = [
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

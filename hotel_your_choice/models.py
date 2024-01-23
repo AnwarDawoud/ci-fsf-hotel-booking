@@ -31,7 +31,7 @@ class Amenity(models.Model):
 
 class Photo(models.Model):
     id = models.AutoField(primary_key=True)
-    image = models.ImageField(upload_to='hotel_photos/')
+    image = models.ImageField(upload_to='hotel_your_choice/hotel_photos/')
     hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE)
 
 class Hotel(models.Model):
@@ -41,7 +41,7 @@ class Hotel(models.Model):
     night_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     capacity = models.IntegerField(null=True, blank=True)
     room_number = models.IntegerField(null=True, blank=True)
-    main_photo = models.ImageField(upload_to='hotel_main_photos/')
+    main_photo = models.ImageField(upload_to='hotel_your_choice/hotel_main_photos/')
     other_photos = models.ManyToManyField(Photo, related_name='hotel_photos', blank=True)
     amenities = models.ManyToManyField(Amenity)
     manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
