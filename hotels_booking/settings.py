@@ -21,7 +21,7 @@ DEBUG = not ON_HEROKU # True if local, False if on Heroku
 
 
 ALLOWED_HOSTS = [
-    'mysterious-tundra-89304-deptes.herokuapp.com',
+    'mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com',
     'localhost',
     '127.0.0.1'
 ] 
