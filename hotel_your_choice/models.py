@@ -57,7 +57,8 @@ class Hotel(models.Model):
     def save(self, *args, **kwargs):
         # Upload main_photo to Cloudinary
         if self.main_photo and not self.main_photo.public_id:
-            self.main_photo = CloudinaryField('image', folder='hotel_your_choice/hotel_main_photos/').upload(self.main_photo)['public_id']
+            self.main_photo.public_id = self.main_photo.public_id or self.main_photo.upload_options.get('public_id')
+            self.main_photo.save()
 
         # Save the Hotel instance
         super(Hotel, self).save(*args, **kwargs)
@@ -65,9 +66,10 @@ class Hotel(models.Model):
         # Upload other_photos to Cloudinary with folder specified
         for photo in self.other_photos.all():
             if photo.image and not photo.image.public_id:
-                photo.image = CloudinaryField('image', folder='hotel_your_choice/other_photos/').upload(photo.image)['public_id']
-                photo.save()
+                photo.image.public_id = photo.image.public_id or photo.image.upload_options.get('public_id')
+                photo.image.save()
 
+            
     def __str__(self):
         return self.name
 
