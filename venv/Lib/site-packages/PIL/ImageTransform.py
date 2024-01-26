@@ -12,28 +12,18 @@
 #
 # See the README file for information on usage and redistribution.
 #
-from __future__ import annotations
-
-from typing import Sequence
 
 from . import Image
 
 
 class Transform(Image.ImageTransformHandler):
-    method: Image.Transform
-
-    def __init__(self, data: Sequence[int]) -> None:
+    def __init__(self, data):
         self.data = data
 
-    def getdata(self) -> tuple[int, Sequence[int]]:
+    def getdata(self):
         return self.method, self.data
 
-    def transform(
-        self,
-        size: tuple[int, int],
-        image: Image.Image,
-        **options: dict[str, str | int | tuple[int, ...] | list[int]],
-    ) -> Image.Image:
+    def transform(self, size, image, **options):
         # can be overridden
         method, data = self.getdata()
         return image.transform(size, method, data, **options)

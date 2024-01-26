@@ -9,13 +9,17 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone  
 from django.core.exceptions import ValidationError
 from multiupload.fields import MultiFileField
+from django.shortcuts import get_object_or_404
+from PIL import Image  # Make sure to import PIL
 
 
 class ModifyBookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = ['check_in_date', 'check_out_date', 'guests']  # Add the fields you want to modify
+        fields = '__all__'
 
+
+# Modify YourBookingForm to handle rescheduling
 class YourBookingForm(forms.ModelForm):
     reschedule_booking = forms.BooleanField(
         required=False,
@@ -41,39 +45,68 @@ class YourBookingForm(forms.ModelForm):
 
 
 
+from django import forms
+from django.core.exceptions import ValidationError
+from .models import Hotel, Photo
+
+
+from cloudinary.models import CloudinaryField
+from cloudinary.exceptions import Error as CloudinaryException
+
+
+class MultiFileField(forms.FileField):
+    def to_python(self, data):
+        if data in self.empty_values:
+            return None
+        elif not isinstance(data, list):
+            data = [data]  # Ensure data is a list
+        return [super(MultiFileField, self).to_python(item) for item in data]
+
 
 class HotelForm(forms.ModelForm):
     youtube_video_url = forms.URLField(label='YouTube Video URL', required=False)
-    other_photos = MultiFileField(max_file_size=1024 * 1024 * 5, required=False)
-    amenities = forms.ModelMultipleChoiceField(
-        queryset=Amenity.objects.all(),
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'checkbox-list'}),
-        required=False
-    )
+    other_photos = MultiFileField(required=False)
+    amenities = forms.CharField(label='Amenities', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    new_amenity_text = forms.CharField(label='New Amenity', required=False)
 
     class Meta:
         model = Hotel
-        exclude = []  # Ensure 'id' is not included here
+        exclude = ['rated_bookings']  # Ensure 'id' is not included here
         fields = ['name', 'description', 'address', 'night_rate', 'capacity', 'main_photo', 'youtube_video_url', 'amenities', 'other_photos']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
 
     def clean_other_photos(self):
-        other_photos = self.cleaned_data.get('other_photos', [])
+        print("Cleaning Other Photos...")
+        other_photos = self.cleaned_data.get('other_photos')
+        cleaned_photos = []
 
-        # Clear existing photos to avoid duplicates
-        self.instance.other_photos.clear()
+        if other_photos is None:
+            other_photos = []  # Default value if other_photos is None
+
+        print(f"Other photos received: {other_photos}")
 
         for photo in other_photos:
             try:
-                # Create a new Photo instance and link it to the current Hotel instance
-                photo_instance = Photo.objects.create(image=photo, hotel=self.instance)
-                self.instance.other_photos.add(photo_instance)
-            except Exception as e:
-                raise ValidationError(f'Error uploading photo: {e}')
+                with Image.open(photo) as img:
+                    img.verify()
 
-        return other_photos
+                # Append only verified photos to the list
+                cleaned_photos.append(photo)
+            except Exception as e:
+                print(f'Error verifying photo: {e}')
+                print(f'Problematic photo: {photo}')
+
+        return cleaned_photos
+
+    def clean_amenities(self):
+        print("Cleaning Amenities...")
+        amenities = self.cleaned_data.get('amenities', '')
+        new_amenity_text = self.cleaned_data.get('new_amenity_text')
+        if new_amenity_text:
+            amenities = new_amenity_text
+        return amenities
 
     def save(self, commit=True):
         hotel_instance = super().save(commit=False)
@@ -87,7 +120,8 @@ class HotelForm(forms.ModelForm):
             hotel_instance.save()
 
         return hotel_instance
-    
+
+
 
 class CustomRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -95,23 +129,23 @@ class CustomRegistrationForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, required=True)
     contact_number = forms.CharField(max_length=15, required=True)
 
-    is_hotel_manager = forms.BooleanField(required=False)
-    is_client_user = forms.BooleanField(required=False)
-    is_administrator = forms.BooleanField(required=False)
-
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'first_name', 'last_name', 'contact_number', 'password1', 'password2', 'is_hotel_manager', 'is_client_user', 'is_administrator']
+        fields = ['username', 'email', 'first_name', 'last_name', 'contact_number', 'password1', 'password2']
+
 
 class UpdatePermissionsForm(forms.Form):
     user_id = forms.IntegerField()
     new_permissions = forms.CharField(max_length=255)
 
+
 class DeleteUserForm(forms.Form):
     user_id = forms.IntegerField()
 
+
 class ViewUserLogForm(forms.Form):
     log_user_id = forms.IntegerField()
+
 
 class RatingForm(forms.Form):
     rating = forms.ChoiceField(choices=RATING_CHOICES, widget=forms.RadioSelect)
@@ -133,14 +167,15 @@ class CommentForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
-    
+
+
 class RescheduleForm(forms.Form):
     new_check_in_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
     new_check_out_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
 
-class CancelBookingForm(forms.Form):
-    reason = forms.CharField(widget=forms.Textarea)    
 
+class CancelBookingForm(forms.Form):
+    reason = forms.CharField(widget=forms.Textarea)
 
 
 class CustomPasswordResetForm(forms.Form):

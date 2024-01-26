@@ -20,7 +20,6 @@
 #
 # See the README file for information on usage and redistribution.
 #
-from __future__ import annotations
 
 from . import Image
 from ._binary import i32le as i32

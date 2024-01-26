@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Comment, CustomUser, Hotel, Booking, Photo, UserActivity, Rating, Amenity
-from .forms import YourBookingForm, CustomRegistrationForm, HotelForm, RatingForm, CommentForm  # Import CommentForm
+from .forms import YourBookingForm, CustomRegistrationForm, HotelForm, RatingForm, CommentForm, ModifyBookingForm
 import logging
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
@@ -17,18 +17,23 @@ from django.http import HttpResponse
 from django.views import View
 from .models import Hotel, Booking, Rating, Comment
 from django.contrib.auth import get_user_model
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.utils import timezone
-
+from django.db import transaction
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import HttpResponseRedirect
+from django.db import IntegrityError
+import xlsxwriter
 
 logger = logging.getLogger(__name__)
 
 
 def view_hotels(request):
-    hotels = Hotel.objects.all().prefetch_related('rated_bookings__ratings__user', 'amenities')
+    hotels = Hotel.objects.all().prefetch_related('rated_bookings__ratings__user')
+    
 
     context = {'hotels': hotels}
-
+    
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -37,30 +42,34 @@ def view_hotels(request):
 
             if rating_id:
                 rating = get_object_or_404(Rating, id=rating_id)
-                comment = Comment(text=text, rating=rating, booking=rating.booking)
-                comment.save()
 
-                # Update the context to include the new comment
-                hotel = rating.hotel
-                hotel.rated_bookings.set(Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False))
-                context['hotels'] = hotels
+                # Check if the rating belongs to an active booking
+                if rating.booking.status == 'active':
+                    comment = Comment(text=text, rating=rating, booking=rating.booking)
+                    comment.save()
 
-                messages.success(request, 'Comment added successfully.')
+                    # Update the context to include the new comment for the specific hotel
+                    hotel = rating.hotel
+                    hotel.rated_bookings.set(
+                        Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False)
+                    )
+                    context['hotels'] = hotels  # Update only if needed
+
+                    messages.success(request, 'Comment added successfully.')
+                else:
+                    messages.error(request, 'Booking is not active. Comment cannot be added.')
             else:
-                messages.error(request, 'Booking does not have a rating. Comment cannot be added.')
+                messages.error(request, 'Invalid Rating ID. Comment cannot be added.')
         else:
-            messages.error(request, 'Booking ID is missing. Comment cannot be added.')
+            messages.error(request, 'Invalid comment form. Please check the form.')
 
     context['comment_form'] = CommentForm()
-
     return render(request, 'hotel_your_choice/common/view_hotels.html', context)
-
-
-from django.views.decorators.csrf import csrf_protect
 
 @login_required
 @require_POST
 @csrf_protect
+
 def delete_comment(request, comment_id):
     try:
         comment = get_object_or_404(Comment, pk=comment_id)
@@ -69,8 +78,6 @@ def delete_comment(request, comment_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-
-from django.utils import timezone
 
 def add_comment(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
@@ -100,6 +107,7 @@ def add_comment(request, booking_id):
 
     return JsonResponse({'status': 'error', 'errors': form.errors})
 
+
 def like_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     comment.likes_count += 1
@@ -109,6 +117,7 @@ def like_comment(request, comment_id):
 
     comment.save()
     return JsonResponse({'likes_count': comment.likes_count})
+
 
 def dislike_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
@@ -120,6 +129,7 @@ def dislike_comment(request, comment_id):
     comment.save()
     return JsonResponse({'dislikes_count': comment.dislikes_count})
 
+
 def delete_experience(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
 
@@ -129,9 +139,8 @@ def delete_experience(request, booking_id):
         return redirect('hotel_your_choice:view_hotels')
 
     return HttpResponse("Method not allowed", status=405)
-        
 
-# Hotel Manager Views
+
 @login_required
 def hotel_manager_dashboard(request):
     hotels_managed = Hotel.objects.filter(manager=request.user)
@@ -143,154 +152,129 @@ def hotel_manager_dashboard(request):
 
     return render(request, 'hotel_your_choice/hotel_manager/dashboard.html', {'bookings': bookings})
 
+@login_required
+def handle_amenities(hotel_instance, amenity_ids):
+    print("Handling Amenities...")
+    
+    # Clear existing amenities
+    hotel_instance.amenities = ''
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from .forms import HotelForm
-from .models import Amenity, Photo
+    # Iterate through amenity_ids and append them to the amenities field
+    amenities = Amenity.objects.filter(id__in=amenity_ids)
+    amenity_names = ', '.join(amenity.name for amenity in amenities)
+    hotel_instance.amenities = amenity_names
+    hotel_instance.save()
 
-from django.db import IntegrityError
+    print(f"Amenities updated: {hotel_instance.amenities}")
+
+def handle_other_photos(hotel_instance, other_photos):
+    print("Handling Other Photos...")
+
+    hotel_instance.other_photos.clear()  # Clear existing photos
+
+    for photo in other_photos:
+        try:
+            # Create a new Photo instance and link it to the current Hotel instance
+            photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
+            hotel_instance.other_photos.add(photo_instance)
+        except Exception as e:
+            print(f'Error uploading photo: {e}')
+
+    hotel_instance.save()
+
+    print(f"Other Photos updated: {hotel_instance.other_photos.all()}")
+
+
 
 @login_required
 def add_hotel(request):
     if request.method == 'POST':
         hotel_form = HotelForm(request.POST, request.FILES)
-
         if hotel_form.is_valid():
             try:
-                # Save the form without committing to create a new instance
-                hotel_instance = hotel_form.save(commit=False)
+                with transaction.atomic():
+                    # Process the form data and save the hotel instance
+                    hotel_instance = hotel_form.save(commit=False)
+                    hotel_instance.manager = request.user
+                    hotel_instance.save()
 
-                # Set the manager to the currently logged-in user
-                hotel_instance.manager = request.user
-
-                # Save the hotel instance to get a valid primary key
-                hotel_instance.save()
-
-                print(f'Hotel instance saved with ID: {hotel_instance.id}')
-
-                # Handle amenities
-                amenities = request.POST.getlist('amenities')
-                for amenity_id in amenities:
-                    amenity = get_object_or_404(Amenity, id=amenity_id)
-                    hotel_instance.amenities.add(amenity)
-
-                # Handle other_photos
-                other_photos = request.FILES.getlist('other_photos')
-                for photo in other_photos:
+                    # Handle other photos within the transaction
                     try:
-                        # Save each photo separately and add to the hotel_instance
-                        photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
-                        hotel_instance.other_photos.add(photo_instance)
+                        handle_other_photos(hotel_instance, request.FILES.getlist('other_photos'))
                     except Exception as e:
-                        # Handle exceptions during photo upload
-                        messages.error(request, f'Error uploading photo: {e}')
-
-                # Save the instance with the updated amenities and other_photos
-                hotel_instance.save()
-
-                messages.success(request, 'Hotel added successfully!')
-                return redirect('hotel_your_choice:view_hotels')
-            except IntegrityError as e:
+                        # Handle any exceptions related to other photos but continue with the transaction
+                        print(f'Error handling other photos: {e}')
+                    
+                    # Commit the transaction
+                    messages.success(request, 'Hotel added successfully!')
+                    return redirect('hotel_your_choice:view_hotels')
+            except Exception as e:
+                # Handle any exceptions that occur during the transaction
                 messages.error(request, f'Error adding hotel: {e}')
         else:
+            # Handle form validation errors
+            print("Form errors:", hotel_form.errors)
             messages.error(request, 'Error adding hotel. Please check the form.')
     else:
         hotel_form = HotelForm()
 
     amenities = Amenity.objects.all()
-
-    return render(
-        request,
-        'hotel_your_choice/hotel_manager/add_hotel.html',
-        {'hotel_form': hotel_form, 'amenities': amenities}
-    )
-
-
-def handle_photo_upload(request, hotel_instance, other_photos):
-    for photo in other_photos:
-        try:
-            photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
-            hotel_instance.other_photos.add(photo_instance)
-        except Exception as e:
-            messages.error(request, f'Error uploading photo: {e}')
-
-
+    return render(request, 'hotel_your_choice/hotel_manager/add_hotel.html', {'hotel_form': hotel_form, 'amenities': amenities})
 
 @login_required
 def delete_hotel(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
-
     if request.user == hotel.manager:
         hotel.delete()
         messages.success(request, 'Hotel deleted successfully!')
     else:
         messages.error(request, 'You do not have permission to delete this hotel.')
-
     return redirect('hotel_your_choice:view_hotels')
 
-from django.shortcuts import get_object_or_404
+
 
 @login_required
 def edit_hotel(request, hotel_id):
     hotel_instance = get_object_or_404(Hotel, id=hotel_id)
 
+    # Check if the logged-in user is the manager of the hotel
+    if request.user != hotel_instance.manager:
+        messages.error(request, 'You do not have permission to edit this hotel.')
+        return redirect('hotel_your_choice:view_hotels')
+
     if request.method == 'POST':
         hotel_form = HotelForm(request.POST, request.FILES, instance=hotel_instance)
-
         if hotel_form.is_valid():
-            # Save the form without committing to update the instance
-            hotel_instance = hotel_form.save(commit=False)
+            try:
+                with transaction.atomic():
+                    hotel_instance = hotel_form.save()
 
-            # Handle amenities
-            amenities = request.POST.getlist('amenities')
-            hotel_instance.amenities.clear()  # Clear existing amenities
-            for amenity_id in amenities:
-                amenity = Amenity.objects.get(id=amenity_id)
-                hotel_instance.amenities.add(amenity)
+                    # Handle amenities (unchanged)
+                    amenities_str = request.POST.get('amenities', '')  # Get comma-separated string of amenities
+                    amenities_list = [amenity.strip() for amenity in amenities_str.split(',')]  # Split string into list
+                    hotel_instance.amenities = ', '.join(amenities_list)  # Join list back into comma-separated string
 
-            # Save the instance with the updated amenities
-            hotel_instance.save()
+                    # Save the updated hotel instance
+                    hotel_instance.save()
 
-            # Handle other_photos
-            other_photos = request.FILES.getlist('other_photos')
+                    # Handle other photos
+                    handle_other_photos(hotel_instance, request.FILES.getlist('other_photos'))
 
-            # Clear existing photos
-            hotel_instance.other_photos.clear()
-
-            for photo in other_photos:
-                # Save each photo separately and add to the hotel_instance
-                photo_instance = Photo.objects.create(image=photo, hotel=hotel_instance)
-                hotel_instance.other_photos.add(photo_instance)
-
-            # Save the instance with the updated other_photos
-            hotel_instance.save()
-
-            messages.success(request, 'Hotel edited successfully!')
-            return redirect('hotel_your_choice:view_hotels')
+                    messages.success(request, 'Hotel edited successfully!')
+                    return redirect('hotel_your_choice:view_hotels')
+            except Exception as e:
+                # Handle any exceptions that occur during the transaction
+                messages.error(request, f'Error editing hotel: {e}')
         else:
             messages.error(request, 'Error editing hotel. Please check the form.')
     else:
-        # If it's a GET request, render the form with the existing hotel data
         hotel_form = HotelForm(instance=hotel_instance)
-
-    amenities = Amenity.objects.all()
 
     return render(
         request,
         'hotel_your_choice/hotel_manager/edit_hotel.html',
-        {'hotel_form': hotel_form, 'hotel': hotel_instance, 'amenities': amenities}
+        {'hotel_form': hotel_form, 'hotel': hotel_instance}
     )
-
-
-   
-from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect
-from .models import Booking
-from .forms import ModifyBookingForm  # Assuming you have a form for modifying bookings
-from django.http import HttpResponse
 
 
 @login_required
@@ -347,10 +331,6 @@ def manage_bookings(request, booking_id=None):
         'modify_form': modify_form,
     })
 
-import xlsxwriter
-from django.http import HttpResponse
-from .models import Booking  # Make sure to import your Booking model
-
 
 def generate_excel(request):
     # Fetch all bookings or filter based on your requirements
@@ -375,20 +355,20 @@ def generate_excel(request):
 
     # Write the booking data.
     for row_num, booking in enumerate(bookings, start=1):
-            worksheet.write(row_num, 0, booking.id)
-            worksheet.write(row_num, 1, booking.check_in_date, date_format)
-            worksheet.write(row_num, 2, booking.check_out_date, date_format)
-            worksheet.write(row_num, 3, booking.status)
-            worksheet.write(row_num, 4, booking.guests)
-            worksheet.write(row_num, 5, booking.user.id)
-            worksheet.write(row_num, 6, booking.user.username)
-            worksheet.write(row_num, 7, booking.user.email)
-            
-            # Include hotel name if available
-            if hasattr(booking, 'hotel') and booking.hotel:
-                worksheet.write(row_num, 8, booking.hotel.name)
-            else:
-                worksheet.write(row_num, 8, 'N/A')
+        worksheet.write(row_num, 0, booking.id)
+        worksheet.write(row_num, 1, booking.check_in_date, date_format)
+        worksheet.write(row_num, 2, booking.check_out_date, date_format)
+        worksheet.write(row_num, 3, booking.status)
+        worksheet.write(row_num, 4, booking.guests)
+        worksheet.write(row_num, 5, booking.user.id)
+        worksheet.write(row_num, 6, booking.user.username)
+        worksheet.write(row_num, 7, booking.user.email)
+
+        # Include hotel name if available
+        if hasattr(booking, 'hotel') and booking.hotel:
+            worksheet.write(row_num, 8, booking.hotel.name)
+        else:
+            worksheet.write(row_num, 8, 'N/A')
 
     workbook.close()
 
@@ -572,8 +552,11 @@ def rate_experience(request, booking_id):
             rating_value = form.cleaned_data['rating']
             text = form.cleaned_data['text']
 
-            # Create a new rating
-            new_rating = Rating(booking=booking, user=user, rating=rating_value, text=text)
+            # Get the hotel associated with the booking
+            hotel_id = booking.hotel.id
+
+            # Create a new rating with the hotel_id
+            new_rating = Rating(booking=booking, user=user, rating=rating_value, text=text, hotel_id=hotel_id)
             new_rating.save()
             messages.success(request, 'Rating added successfully.')
 
@@ -588,12 +571,6 @@ def rate_experience(request, booking_id):
 
     return render(request, 'hotel_your_choice/client/rate_experience.html', {'booking': booking, 'form': form})
 
-
-def hotel_detail(request, hotel_id):
-    hotel = get_object_or_404(Hotel, id=hotel_id)
-    ratings = Rating.objects.filter(hotel=hotel, is_approved=True)
-
-    return render(request, 'hotel_your_choice/hotel_detail.html', {'hotel': hotel, 'ratings': ratings}) 
    
 # Site Administrator Views
 def get_analytics_data():
@@ -899,5 +876,4 @@ def view_user_ratings(request, user_id):
     ratings_data = [{'rating': rating.rating, 'comment': rating.comment, 'approved': rating.approved} for rating in user_ratings]
 
     return JsonResponse(ratings_data, safe=False)
-
 

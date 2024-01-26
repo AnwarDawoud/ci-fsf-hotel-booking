@@ -1,14 +1,11 @@
 # hotel_your_choice/admin.py
 
-import logging
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin  # Import BaseUserAdmin
-from .models import Hotel, Booking, CustomUser, Rating
-from django.utils.html import format_html
-from .models import Amenity
-from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.urls import reverse
-
+from django.utils.html import format_html
+from .models import Hotel, Booking, CustomUser, Rating, Amenity, Photo
+from django.contrib.auth.models import Group
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -27,7 +24,12 @@ class CustomUserAdmin(BaseUserAdmin):
         ),
     )
 
+
 admin.site.register(CustomUser, CustomUserAdmin)
+
+# Assuming you have a 'Hotel Managers' group and a 'Users' group
+hotel_managers_group, created = Group.objects.get_or_create(name='Hotel Managers')
+users_group, created = Group.objects.get_or_create(name='Users')
 
 class ReschedulingStatusFilter(admin.SimpleListFilter):
     title = 'Rescheduling Status'
@@ -40,6 +42,7 @@ class ReschedulingStatusFilter(admin.SimpleListFilter):
         if self.value():
             return queryset.filter(status=self.value())
         return queryset
+
 
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
@@ -84,34 +87,48 @@ class RatingAdmin(admin.ModelAdmin):
     list_display = ('user', 'get_booking', 'rating', 'text', 'timestamp')
 
     def get_booking(self, obj):
-        return obj.booking  # Replace with the actual attribute or method you want to display for booking
+        return obj.booking
 
     get_booking.short_description = 'Booking'
 
+
+
+
 class HotelAdmin(admin.ModelAdmin):
-    list_display = ('name', 'night_rate', 'address', 'display_amenities')
+    list_display = ('name', 'night_rate', 'address', 'display_amenities', 'display_other_photos')
 
     def display_amenities(self, obj):
-        return ', '.join(amenity.name for amenity in obj.amenities.all())
+        # Convert amenities string to a list for display
+        return ', '.join(obj.amenities.split(', '))
 
     display_amenities.short_description = 'Amenities'
-    
+
+    def display_other_photos(self, obj):
+        return ', '.join(photo.image.url for photo in obj.other_photos.all())
+
+    display_other_photos.short_description = 'Other Photos'
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
 
-        # Retrieve the hotel object
         obj = self.get_object(request, object_id)
 
-        # Get the names of the amenities
-        amenities_names = ', '.join(amenity.name for amenity in obj.amenities.all())
-
-        # Create a link to the amenities changelist page
-        amenities_changelist_url = reverse('admin:hotel_your_choice_amenity_changelist')
         amenities_link = format_html('<a href="{}?hotels__id__exact={}">{}</a>',
-                                     amenities_changelist_url, obj.id, amenities_names)
+                                     reverse('admin:hotel_your_choice_amenity_changelist'), obj.id, obj.amenities)
 
-        # Add the link to the context
         extra_context['amenities_link'] = amenities_link
         return super().change_view(request, object_id, form_url, extra_context)
+
+
 admin.site.register(Hotel, HotelAdmin)
 admin.site.register(Amenity)
+
+
+class PhotoAdmin(admin.ModelAdmin):
+    list_display = ('hotel', 'image')
+
+
+admin.site.register(Photo, PhotoAdmin)
+
+
+

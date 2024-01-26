@@ -16,7 +16,6 @@
 # This module provides constants and clear-text names for various
 # well-known TIFF tags.
 ##
-from __future__ import annotations
 
 from collections import namedtuple
 
@@ -57,7 +56,7 @@ def lookup(tag, group=None):
 ##
 # Map tag numbers to tag info.
 #
-#  id: (Name, Type, Length[, enum_values])
+#  id: (Name, Type, Length, enum_values)
 #
 # The length here differs from the length in the tiff spec.  For
 # numbers, the tiff spec is for the number of fields returned. We
@@ -428,7 +427,7 @@ def _populate():
 
         TAGS_V2[k] = TagInfo(k, *v)
 
-    for tags in TAGS_V2_GROUPS.values():
+    for group, tags in TAGS_V2_GROUPS.items():
         for k, v in tags.items():
             tags[k] = TagInfo(k, *v)
 
@@ -438,6 +437,22 @@ _populate()
 # Map type numbers to type names -- defined in ImageFileDirectory.
 
 TYPES = {}
+
+# was:
+# TYPES = {
+#     1: "byte",
+#     2: "ascii",
+#     3: "short",
+#     4: "long",
+#     5: "rational",
+#     6: "signed byte",
+#     7: "undefined",
+#     8: "signed short",
+#     9: "signed long",
+#     10: "signed rational",
+#     11: "float",
+#     12: "double",
+# }
 
 #
 # These tags are handled by default in libtiff, without

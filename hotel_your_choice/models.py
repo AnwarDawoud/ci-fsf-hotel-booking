@@ -1,14 +1,18 @@
+# models.py
 from django.conf import settings
-from django.contrib.auth import get_user_model
+import cloudinary.uploader
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from cloudinary.models import CloudinaryField
 from django.db.models import Avg
 from django.utils.crypto import get_random_string
-from .choices import RATING_CHOICES
 from django.utils import timezone
-from datetime import datetime
+from .choices import RATING_CHOICES
+from django.contrib.auth import get_user_model  # Add this import
+  
 
+# Class definitions
 
 class CustomUser(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
@@ -23,20 +27,24 @@ class CustomUser(AbstractUser):
     def generate_reset_token(self):
         return get_random_string(length=32)
 
+class HotelManager(models.Manager):
+    pass
+
+class PhotoManager(models.Manager):
+    pass
+
 class Amenity(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
-from django.db import models
-from cloudinary.models import CloudinaryField
-from django.conf import settings
-
 class Photo(models.Model):
-    id = models.AutoField(primary_key=True)
-    image = CloudinaryField('image')
-    hotel = models.ForeignKey('Hotel', on_delete=models.CASCADE)
+    hotel = models.ForeignKey('hotel_your_choice.Hotel', on_delete=models.CASCADE)
+    image = CloudinaryField('image', folder='hotel_your_choice/hotel_photos/')
+    
+    objects = PhotoManager()
+
 
 class Hotel(models.Model):
     name = models.CharField(max_length=255)
@@ -46,35 +54,52 @@ class Hotel(models.Model):
     capacity = models.IntegerField(null=True, blank=True)
     room_number = models.IntegerField(null=True, blank=True)
     main_photo = CloudinaryField('image', folder='hotel_your_choice/hotel_main_photos/')
-    other_photos = models.ManyToManyField(Photo, related_name='hotel_photos', blank=True)
-    amenities = models.ManyToManyField(Amenity)
-    manager = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    rated_bookings = models.ManyToManyField('Booking', related_name='rated_hotels', blank=True)
+    other_photos = models.ManyToManyField('Photo', related_name='hotel_photos', blank=True)
+    amenities = models.CharField(max_length=255, blank=True, null=True)
+    manager = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='hotels_as_manager')
+    rated_bookings = models.ManyToManyField('hotel_your_choice.Booking', related_name='rated_hotels', blank=True)
 
     def get_ratings(self):
         return Rating.objects.filter(booking__hotel=self)
 
     def save(self, *args, **kwargs):
-        # Upload main_photo to Cloudinary
-        if self.main_photo and not self.main_photo.public_id:
-            self.main_photo.public_id = self.main_photo.public_id or self.main_photo.upload_options.get('public_id')
-            self.main_photo.save()
+        # Convert amenities list to a comma-separated string if it's a list
+        if isinstance(self.amenities, list):
+            self.amenities = ', '.join(self.amenities)
+
+        # Upload main_photo to Cloudinary if not uploaded already
+        if isinstance(self.main_photo, CloudinaryField) and not self.main_photo.public_id:
+            try:
+                response = cloudinary.uploader.upload(self.main_photo.path)
+                self.main_photo.public_id = response['public_id']
+                self.main_photo.save()
+            except Exception as e:
+                # Handle the Cloudinary upload exception
+                raise e
 
         # Save the Hotel instance
-        super(Hotel, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         # Upload other_photos to Cloudinary with folder specified
         for photo in self.other_photos.all():
-            if photo.image and not photo.image.public_id:
-                photo.image.public_id = photo.image.public_id or photo.image.upload_options.get('public_id')
-                photo.image.save()
+            if isinstance(photo.image, CloudinaryField) and not photo.image.public_id:
+                try:
+                    response = cloudinary.uploader.upload(photo.image.path)
+                    photo.image.public_id = response['public_id']
+                    photo.image.save()
+                except Exception as e:
+                    # Handle the Cloudinary upload exception
+                    raise e
 
-            
     def __str__(self):
         return self.name
 
+    objects = HotelManager()
 
-
+    class Meta:
+        verbose_name_plural = 'Hotels'
+        
+        
 class Booking(models.Model):
     STATUS_ACTIVE = 'active'
     STATUS_CANCELED = 'canceled'
@@ -171,11 +196,10 @@ class UserRating(models.Model):
     is_approved = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-
-
 class Rating(models.Model):
     user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
     booking = models.ForeignKey('hotel_your_choice.Booking', on_delete=models.CASCADE, related_name='ratings')
+    hotel = models.ForeignKey(Hotel, on_delete=models.CASCADE, default=None)  # Add default value here
     rating = models.IntegerField(choices=RATING_CHOICES)
     text = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(default=timezone.now)

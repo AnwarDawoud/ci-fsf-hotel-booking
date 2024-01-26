@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="{% static 'hotel_your_choice_css/view_hotels.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-
 <style>
     /* Add your additional styles here */
 </style>
@@ -20,25 +19,19 @@
             <div class="card horizontal">
                 <div class="card-image">
                     {% if hotel.main_photo %}
-                    <img src="{% cloudinary photo.image.url %}" alt="{{ hotel.name }} Other Photo"
-                        onclick="showEnlarged('{{ photo.image.url|safe }}', '{{ hotel.id }}', '{{ forloop.counter0 }}')"
-                        data-hotel-id="{{ hotel.id }}">
+                    <img src="{{ hotel.main_photo.url }}" alt="{{ hotel.name }} Photo">
                     {% endif %}
                 </div>
-                {% if user.is_authenticated %}
-                {% if user == hotel.manager %}
+                {% if user.is_authenticated and user == hotel.manager %}
                 <a href="{% url 'hotel_your_choice:edit_hotel' hotel.id %}"
                     class="btn btn-small waves-effect waves-light">
                     Edit Hotel
                 </a>
                 <form method="post" action="{% url 'hotel_your_choice:delete_hotel' hotel.id %}"
-                    style="display: inline;">
+                    style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this hotel?');">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-small waves-effect waves-light red">
-                        Delete Hotel
-                    </button>
+                    <button type="submit" class="btn btn-small waves-effect waves-light red">Delete Hotel</button>
                 </form>
-                {% endif %}
                 {% endif %}
                 <div class="card-stacked">
                     <div class="card-content">
@@ -54,7 +47,7 @@
                             <button onclick="hideReadMoreModal('{{ hotel.id }}')">Close</button>
                         </div>
                         <p>{{ hotel.address }}</p>
-                        <p>Amenities: {{ hotel.amenities.all|join:", " }}</p>
+                        <p>Amenities: {{ hotel.amenities }}</p>
                         <p>Price per night: {{ hotel.night_rate }}</p>
                         <p>Room number: {{ hotel.room_number }}</p>
                         <p>Capacity: {{ hotel.capacity }}</p>
@@ -73,8 +66,7 @@
                             <h5>More Photos:</h5>
                             <div class="other-photos" id="otherPhotos{{ hotel.id }}">
                                 {% for photo in hotel.other_photos.all %}
-                                <img src="{% cloudinary photo.image.url %}" alt="{{ hotel.name }} Other Photo"
-                                    onclick="showEnlarged('{{ photo.image.url }}', '{{ hotel.id }}', '{{ forloop.counter0 }}')"
+                                <img src="{{ photo.image.url }}" alt="{{ hotel.name }} Other Photo"
                                     data-hotel-id="{{ hotel.id }}">
                                 {% endfor %}
                             </div>
@@ -94,8 +86,6 @@
                         <!-- Display overall rating section for each hotel -->
                         {% if hotel.rated_bookings %}
                         <div class="hotel-container" data-hotel-id="{{ hotel.id }}">
-                            <!-- Other hotel content -->
-
                             <a class="btn-small blue waves-effect waves-light pulse toggle-ratings ratings-button modal-trigger"
                                 href="#ratingsModal{{ hotel.id }}">
                                 Ratings
@@ -104,14 +94,9 @@
                             <div id="ratingsModal{{ hotel.id }}" class="modal">
                                 <div class="modal-content">
                                     <h5 class="modal-title">Detailed Ratings</h5>
-                                    <!-- If there are no rated bookings, show a message -->
-                                    {% if not hotel.rated_bookings %}
-                                    <p>No ratings or comments available for this hotel.</p>
-                                    {% endif %}
                                     {% for booking in hotel.rated_bookings.all %}
                                     {% for rating in booking.ratings.all %}
 
-                                    <!-- Display detailed rating information for each rating -->
                                     <ul>
                                         <li>
                                             {{ rating.user.username }},
@@ -119,10 +104,8 @@
                                             Comment: {{ rating.text|default:'' }},
                                             Date: {{ rating.timestamp|date:"F j, Y g:i a" }}
 
-                                            <!-- Display additional booking details -->
                                             Booking Status: {{ booking.status }},
                                             Booking Date: {{ booking.date }},
-                                            <!-- Add more details as needed -->
 
                                             {% if request.user.is_staff %}
                                             {% if rating %}
@@ -139,7 +122,6 @@
                                                 {% for comment in booking.comments.all %}
                                                 <li class="comment" data-comment-id="{{ comment.id }}">
                                                     <p>{{ comment.text }}</p>
-                                                    <!-- Like, dislike, and delete options -->
                                                     <div class="like-dislike">
                                                         <form class="like-form" method="post"
                                                             action="{% url 'hotel_your_choice:like_comment' comment.id %}">
@@ -166,7 +148,6 @@
                                                         </form>
                                                     </div>
                                                     {% if request.user.is_staff %}
-                                                    <!-- Show modification and deletion options for admins -->
                                                     <div>
                                                         <h2>Delete Comment</h2>
                                                         <p>Are you sure you want to delete the comment
@@ -191,7 +172,6 @@
                                             </ul>
                                             {% endif %}
 
-                                            <!-- Add comment form -->
                                             <form class="add-comment-form" data-booking-id="{{ booking.id }}"
                                                 action="{% url 'hotel_your_choice:add_comment' booking.id %}"
                                                 method="post">
@@ -202,7 +182,6 @@
                                                 <button type="submit" class="add-comment-btn">Add Comment</button>
                                             </form>
 
-                                            <!-- Detailed rating information -->
                                             <div class="ratings-details">
                                                 <p>User: {{ booking.user.username }}</p>
                                                 <p>Rating: {{ booking.ratings.first.rating }}</p>
@@ -231,8 +210,6 @@
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-<!-- Your custom script -->
-<script src="{% static 'hotel_your_choice_js/hotel_script.js' %}"></script>
 
 <script>
     function showReadMoreModal ( hotelId )
@@ -531,5 +508,6 @@
 
 
 </script>
-
+<!-- Your custom script -->
+<script src="{% static 'hotel_your_choice_js/hotel_script.js' %}"></script>
 {% endblock %}

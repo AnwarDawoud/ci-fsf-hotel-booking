@@ -2,9 +2,7 @@
 {% load static %}
 
 {% block content %}
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chosen-js@1.8.7/dist/chosen.min.css">
 
 <h1 class="center-align">Edit Hotel</h1>
 
@@ -52,19 +50,11 @@
             <!-- Amenities -->
             <div class="row">
                 <div class="input-field col s12">
-                    <label for="amenities">Amenities:</label>
-                    <select id="amenities" name="amenities" data-placeholder="Choose amenities..." multiple
-                        class="chosen-select">
-                        {% for amenity in amenities %}
-                        <option value="{{ amenity.pk }}" {% if amenity in hotel.amenities.all %}selected{% endif %}>
-                            {{ amenity.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <label for="id_amenities">Amenities</label>
+                    <textarea id="id_amenities" name="amenities" class="materialize-textarea"></textarea>
                 </div>
             </div>
 
-            <!-- Other Photos -->
             <div class="row">
                 <div class="file-field input-field col s12">
                     <div class="btn">
@@ -77,24 +67,8 @@
                 </div>
             </div>
 
-            <!-- Add other fields similarly -->
-
-            <button type="submit" class="btn waves-effect waves-light">Save Changes</button>
+            <button type="submit" class="btn waves-effect waves-light">edit_hotel Hotel</button>
         </form>
-        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chosen-js@1.8.7/dist/chosen.jquery.min.js"></script>
-        <script>
-            document.addEventListener( 'DOMContentLoaded', function ()
-            {
-                // Initialize Chosen for the amenities select
-                $( ".chosen-select" ).chosen( {
-                    placeholder_text_multiple: "Choose amenities...",
-                    search_contains: true,
-                    width: '100%'
-                } );
-            } );
-        </script>
-
     </div>
 </div>
 {% endblock %}

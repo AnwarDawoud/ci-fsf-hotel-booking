@@ -1,14 +1,21 @@
 import os
-from pathlib import Path
 import dj_database_url
-from decouple import config
+from dotenv import load_dotenv
 from django.db import models
+from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+config_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(config_path)
+
+# Continue with the rest of your settings.py
+SECRET_KEY = os.getenv('SECRET_KEY')
+
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
-ON_HEROKU = config('ON_HEROKU', default=False, cast=bool)
-SECRET_KEY = os.environ.get('SECRET_KEY')
+ON_HEROKU = os.getenv('ON_HEROKU', default='False') == 'True'
+
 DEBUG = not ON_HEROKU
 
 ALLOWED_HOSTS = [
@@ -28,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'multiupload',
     'hotel_your_choice.apps.YourAppConfig',
-]
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -66,18 +73,24 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 STATIC_URL = '/static/'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'hotel_your_choice', 'static')]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_collected')
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 LOGIN_URL = 'login'
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'

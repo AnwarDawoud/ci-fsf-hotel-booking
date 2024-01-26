@@ -20,9 +20,10 @@
 #
 # See the README file for information on usage and redistribution.
 #
-from __future__ import annotations
 
+import functools
 import math
+import operator
 
 
 class Stat:
@@ -52,22 +53,26 @@ class Stat:
         """Get min/max values for each band in the image"""
 
         def minmax(histogram):
-            res_min, res_max = 255, 0
+            n = 255
+            x = 0
             for i in range(256):
                 if histogram[i]:
-                    res_min = i
-                    break
-            for i in range(255, -1, -1):
-                if histogram[i]:
-                    res_max = i
-                    break
-            return res_min, res_max
+                    n = min(n, i)
+                    x = max(x, i)
+            return n, x  # returns (255, 0) if there's no data in the histogram
 
-        return [minmax(self.h[i:]) for i in range(0, len(self.h), 256)]
+        v = []
+        for i in range(0, len(self.h), 256):
+            v.append(minmax(self.h[i:]))
+        return v
 
     def _getcount(self):
         """Get total number of pixels in each layer"""
-        return [sum(self.h[i : i + 256]) for i in range(0, len(self.h), 256)]
+
+        v = []
+        for i in range(0, len(self.h), 256):
+            v.append(functools.reduce(operator.add, self.h[i : i + 256]))
+        return v
 
     def _getsum(self):
         """Get sum of all pixels in each layer"""
@@ -93,7 +98,11 @@ class Stat:
 
     def _getmean(self):
         """Get average pixel level for each layer"""
-        return [self.sum[i] / self.count[i] for i in self.bands]
+
+        v = []
+        for i in self.bands:
+            v.append(self.sum[i] / self.count[i])
+        return v
 
     def _getmedian(self):
         """Get median pixel level for each layer"""
@@ -112,18 +121,28 @@ class Stat:
 
     def _getrms(self):
         """Get RMS for each layer"""
-        return [math.sqrt(self.sum2[i] / self.count[i]) for i in self.bands]
+
+        v = []
+        for i in self.bands:
+            v.append(math.sqrt(self.sum2[i] / self.count[i]))
+        return v
 
     def _getvar(self):
         """Get variance for each layer"""
-        return [
-            (self.sum2[i] - (self.sum[i] ** 2.0) / self.count[i]) / self.count[i]
-            for i in self.bands
-        ]
+
+        v = []
+        for i in self.bands:
+            n = self.count[i]
+            v.append((self.sum2[i] - (self.sum[i] ** 2.0) / n) / n)
+        return v
 
     def _getstddev(self):
         """Get standard deviation for each layer"""
-        return [math.sqrt(self.var[i]) for i in self.bands]
+
+        v = []
+        for i in self.bands:
+            v.append(math.sqrt(self.var[i]))
+        return v
 
 
 Global = Stat  # compatibility

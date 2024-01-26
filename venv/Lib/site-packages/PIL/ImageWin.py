@@ -16,7 +16,6 @@
 #
 # See the README file for information on usage and redistribution.
 #
-from __future__ import annotations
 
 from . import Image
 
@@ -55,9 +54,9 @@ class Dib:
     "L", "P", or "RGB".
 
     If the display requires a palette, this constructor creates a suitable
-    palette and associates it with the image. For an "L" image, 128 graylevels
+    palette and associates it with the image. For an "L" image, 128 greylevels
     are allocated. For an "RGB" image, a 6x6x6 colour cube is used, together
-    with 20 graylevels.
+    with 20 greylevels.
 
     To make sure that palettes work properly under Windows, you must call the
     ``palette`` method upon certain events from Windows.

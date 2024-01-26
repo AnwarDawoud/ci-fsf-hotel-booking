@@ -14,7 +14,6 @@
 #
 # See the README file for information on usage and redistribution.
 #
-from __future__ import annotations
 
 import sys
 
@@ -110,7 +109,7 @@ class PSDraw:
             if im.mode == "1":
                 dpi = 200  # fax
             else:
-                dpi = 100  # grayscale
+                dpi = 100  # greyscale
         # image size (on paper)
         x = im.size[0] * 72 / dpi
         y = im.size[1] * 72 / dpi
