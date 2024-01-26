@@ -1,0 +1,15 @@
+id,app_label,model
+1,admin,logentry
+2,contenttypes,contenttype
+3,sessions,session
+4,auth,permission
+5,auth,group
+6,hotel_your_choice,customuser
+7,hotel_your_choice,amenity
+8,hotel_your_choice,booking
+9,hotel_your_choice,hotel
+10,hotel_your_choice,userrating
+11,hotel_your_choice,useractivity
+12,hotel_your_choice,rating
+13,hotel_your_choice,photo
+14,hotel_your_choice,comment

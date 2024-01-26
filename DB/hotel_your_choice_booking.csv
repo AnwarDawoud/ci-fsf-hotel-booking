@@ -1,0 +1,4 @@
+id,check_in_date,check_out_date,guests,issued_date,rating,status,canceled_by_id,hotel_id,user_id,original_booking_id
+1,2024-01-26,2024-01-27,2,2024-01-25,,active,,1,4,
+2,2024-01-27,2024-01-28,5,2024-01-26,,active,,2,4,
+3,2024-01-27,2024-01-28,4,2024-01-26,,active,,3,4,

@@ -1,0 +1,42 @@
+id,action_time,object_id,object_repr,change_message,content_type_id,user_id,action_flag
+1,2024-01-24 22:52:38.908000,1,Administrator,"[{""added"": {}}]",5,1,1
+2,2024-01-24 22:54:29.235000,2,Clients,"[{""added"": {}}]",5,1,1
+3,2024-01-24 22:54:49.339000,1,Admin,"[{""changed"": {""fields"": [""Groups"", ""User permissions"", ""Is administrator""]}}]",6,1,2
+4,2024-01-24 22:58:11.861000,3,Hotel Manager,"[{""added"": {}}]",5,1,1
+5,2024-01-24 23:03:46.973000,2,HotelManager01,"[{""changed"": {""fields"": [""Groups"", ""User permissions""]}}]",6,1,2
+6,2024-01-25 00:08:16.309000,2,Clients,,5,1,3
+7,2024-01-25 00:08:16.321000,3,Hotel Manager,,5,1,3
+8,2024-01-25 00:08:42.975000,2,HotelManager01,"[{""changed"": {""fields"": [""Groups""]}}]",6,1,2
+9,2024-01-25 00:09:42.317000,4,Hotel Managers,"[{""changed"": {""fields"": [""Permissions""]}}]",5,1,2
+10,2024-01-25 00:10:32.480000,5,Users,"[{""changed"": {""fields"": [""Permissions""]}}]",5,1,2
+11,2024-01-25 02:21:02.268000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Manager""]}}]",9,1,2
+12,2024-01-25 02:25:42.373000,1,Photo object (1),"[{""added"": {}}]",13,1,1
+13,2024-01-25 02:25:55.351000,2,Photo object (2),"[{""added"": {}}]",13,1,1
+14,2024-01-25 02:26:22.580000,3,Photo object (3),"[{""added"": {}}]",13,1,1
+15,2024-01-25 02:26:27.164000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Other photos""]}}]",9,1,2
+16,2024-01-25 02:27:22.394000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Amenities""]}}]",9,1,2
+17,2024-01-25 02:59:53.195000,1,Killarney Avenue,[],9,1,2
+18,2024-01-25 03:00:49.810000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Amenities""]}}]",9,1,2
+19,2024-01-25 05:48:17.313000,6,Photo object (6),,13,1,3
+20,2024-01-25 05:48:17.324000,5,Photo object (5),,13,1,3
+21,2024-01-25 05:48:17.335000,4,Photo object (4),,13,1,3
+22,2024-01-25 05:48:17.346000,3,Photo object (3),,13,1,3
+23,2024-01-25 05:48:17.358000,2,Photo object (2),,13,1,3
+24,2024-01-25 05:48:17.371000,1,Photo object (1),,13,1,3
+25,2024-01-25 07:42:00.465000,3,HotelManager02,"[{""changed"": {""fields"": [""Groups"", ""User permissions"", ""Is hotel manager""]}}]",6,1,2
+26,2024-01-25 16:26:39.972000,4,Hotel Managers,[],5,1,2
+27,2024-01-25 22:09:26.833000,3,Great Southern Killarney,"[{""changed"": {""fields"": [""Amenities"", ""Manager""]}}]",9,1,2
+28,2024-01-25 22:09:36.416000,2,The Lake Hotel,"[{""changed"": {""fields"": [""Manager""]}}]",9,1,2
+29,2024-01-25 22:10:34.601000,2,The Lake Hotel,[],9,1,2
+30,2024-01-25 22:10:40.733000,2,The Lake Hotel,"[{""changed"": {""fields"": [""Manager""]}}]",9,1,2
+31,2024-01-25 22:13:43.395000,2,The Lake Hotel,"[{""changed"": {""fields"": [""Amenities"", ""Manager""]}}]",9,1,2
+32,2024-01-25 22:13:57.567000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Amenities""]}}]",9,1,2
+33,2024-01-25 22:14:02.417000,3,Great Southern Killarney,[],9,1,2
+34,2024-01-25 23:56:58.499000,4,HotelUser01,"[{""changed"": {""fields"": [""Groups"", ""User permissions"", ""Is client user""]}}]",6,1,2
+35,2024-01-26 00:00:08.410000,5,Users,"[{""changed"": {""fields"": [""Permissions""]}}]",5,1,2
+36,2024-01-26 00:00:43.530000,4,HotelUser01,"[{""changed"": {""fields"": [""User permissions""]}}]",6,1,2
+37,2024-01-26 01:15:09.571000,2,Rating for 2 - HotelUser01 - The Lake Hotel Booking (Active) by HotelUser01,,12,1,3
+38,2024-01-26 01:15:09.582000,1,Rating for 1 - HotelUser01 - Killarney Avenue Booking (Active) by HotelUser01,,12,1,3
+39,2024-01-26 02:53:04.966000,1,Killarney Avenue,"[{""changed"": {""fields"": [""Rated bookings""]}}]",9,1,2
+40,2024-01-26 02:54:16.575000,2,The Lake Hotel,"[{""changed"": {""fields"": [""Amenities"", ""Rated bookings""]}}]",9,1,2
+41,2024-01-26 02:59:16.050000,3,Great Southern Killarney,"[{""changed"": {""fields"": [""Amenities"", ""Rated bookings""]}}]",9,1,2

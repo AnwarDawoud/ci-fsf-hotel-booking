@@ -1,0 +1,4 @@
+id,rating,text,timestamp,booking_id,user_id,hotel_id
+3,5,Nice hotel !,2024-01-26 01:36:30.036000,1,4,1
+4,5,Great hotel,2024-01-26 02:57:02.769000,2,4,2
+5,5,Super hotel,2024-01-26 02:58:09.291000,3,4,3
