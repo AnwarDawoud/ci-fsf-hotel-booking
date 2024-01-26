@@ -90,14 +90,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'hotel_your_choice', 'static')]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_collected')
-
-STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'hotel_your_choice', 'static'),
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# STATICFILES_FINDERS = [
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+# ]
 
 LOGIN_URL = 'login'
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
