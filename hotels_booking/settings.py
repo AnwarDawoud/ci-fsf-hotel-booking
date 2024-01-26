@@ -4,6 +4,11 @@ from dotenv import load_dotenv
 from django.db import models
 from pathlib import Path
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Use environment variables in your settings
+DEBUG = os.getenv('DEBUG')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 config_path = os.path.join(BASE_DIR, '.env')
