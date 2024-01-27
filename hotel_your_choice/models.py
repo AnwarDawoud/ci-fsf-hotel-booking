@@ -12,7 +12,7 @@ from .choices import RATING_CHOICES
 from django.contrib.auth import get_user_model  # Add this import
   
 
-# Class definitions
+
 
 class CustomUser(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
