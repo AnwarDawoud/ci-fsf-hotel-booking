@@ -21,9 +21,9 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 ON_HEROKU = os.getenv('ON_HEROKU', default='False') == 'True'
 
-#DEBUG = not ON_HEROKU
+DEBUG = not ON_HEROKU
 
-DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = [
     'powerful-peak-43929-24e685d62724.herokuapp.com',
