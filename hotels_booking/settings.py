@@ -26,7 +26,7 @@ ON_HEROKU = os.getenv('ON_HEROKU', default='False') == 'True'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'mysterious-tundra-89304-deptes-8a08ec3a2b87.herokuapp.com',
+    'powerful-peak-43929-24e685d62724.herokuapp.com',
     'localhost',
     '127.0.0.1',
 ]
