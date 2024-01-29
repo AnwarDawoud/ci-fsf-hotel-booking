@@ -23,10 +23,8 @@ ON_HEROKU = os.getenv('ON_HEROKU', default='False') == 'True'
 
 DEBUG = not ON_HEROKU
 
-# DEBUG = True
-
 ALLOWED_HOSTS = [
-    'powerful-peak-43929-24e685d62724.herokuapp.com',
+    'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com',
     'localhost',
     '127.0.0.1',
 ]
