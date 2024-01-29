@@ -10,3 +10,4 @@ node_modules/
 .github/
 .env
 db.sqlite3
+env

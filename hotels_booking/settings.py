@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cloudinary',
     'django.contrib.auth',
-    'multiupload',
     'hotel_your_choice.apps.YourAppConfig',
     ]
 
@@ -116,7 +115,7 @@ STATICFILES_FINDERS = [
 ]
 
 LOGIN_URL = 'login'
-AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
+# AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
