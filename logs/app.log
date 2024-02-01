@@ -1,0 +1,96 @@
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2932
+"GET /static/hotel_your_choice_css/style.css HTTP/1.1" 304 0
+"GET /admin/hotel_your_choice/customuser/ HTTP/1.1" 200 11547
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/customuser/ HTTP/1.1" 200 11547
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/auth/group/ HTTP/1.1" 200 7024
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/customuser/ HTTP/1.1" 200 11547
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/auth/group/ HTTP/1.1" 200 7024
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/auth/group/3/change/ HTTP/1.1" 200 9622
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+Internal Server Error: /admin/auth/group/3/change/
+Traceback (most recent call last):
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\backends\base\base.py", line 242, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\core\handlers\exception.py", line 47, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\core\handlers\base.py", line 181, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\contrib\admin\options.py", line 616, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\utils\decorators.py", line 130, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\views\decorators\cache.py", line 44, in _wrapped_view_func
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\contrib\admin\sites.py", line 232, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\contrib\admin\options.py", line 1660, in change_view
+    return self.changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\utils\decorators.py", line 43, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\utils\decorators.py", line 130, in _wrapped_view
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\contrib\admin\options.py", line 1539, in changeform_view
+    with transaction.atomic(using=router.db_for_write(self.model)):
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\transaction.py", line 246, in __exit__
+    connection.commit()
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\utils\asyncio.py", line 33, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\backends\base\base.py", line 266, in commit
+    self._commit()
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\backends\base\base.py", line 241, in _commit
+    with self.wrap_database_errors:
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\env\Lib\site-packages\django\db\backends\base\base.py", line 242, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: FOREIGN KEY constraint failed
+"POST /admin/auth/group/3/change/ HTTP/1.1" 500 135582
+"GET /admin/auth/group/3/change/ HTTP/1.1" 200 9622
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/customuser/ HTTP/1.1" 200 11547
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/auth/group/ HTTP/1.1" 200 7024
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/hotel_your_choice/logentry/ HTTP/1.1" 200 5451
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+"GET /admin/auth/group/ HTTP/1.1" 200 7024
+"GET /admin/jsi18n/ HTTP/1.1" 200 3325
+C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking\hotels_booking\settings.py changed, reloading.

@@ -1,0 +1,36 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="center-align">Hotel Information</h1>
+
+<div class="row">
+    <div class="col s12">
+        <div class="card horizontal">
+            <div class="card-stacked">
+                <div class="card-content">
+                    <h4>Placeholder Hotel Name</h4>
+                    <p>Placeholder Hotel Address</p>
+                    <p>Amenities: Placeholder Amenities</p>
+                    <p>Price per night: Placeholder Price</p>
+                    <p>Room number: Placeholder Room Number</p>
+                    <p>Capacity: Placeholder Capacity</p>
+                    <a href="#" class="btn btn-small waves-effect waves-light disabled">Book Now</a>
+                    <!-- Placeholder for "Login to book this hotel" message if user is not authenticated -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- Materialize JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('.modal');
+        var instances = M.Modal.init(elems);
+    });
+</script>
+{% endblock %}

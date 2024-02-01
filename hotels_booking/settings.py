@@ -3,6 +3,8 @@ import dj_database_url
 from dotenv import load_dotenv
 from django.db import models
 from pathlib import Path
+import logging
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,9 +31,10 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.contenttypes',
+    'django.contrib.contenttypes',  # Keep only one entry for contenttypes
     'django.contrib.sessions',
     'django.contrib.messages',
     'cloudinary_storage',
@@ -39,7 +42,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'django.contrib.auth',
     'hotel_your_choice.apps.YourAppConfig',
-    ]
+]
+    
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -80,9 +84,7 @@ TEMPLATES = [
 #     }
 # }
 
-
-
-# # Database configuration
+# Database configuration
 if ON_HEROKU:
     DATABASE_URL = os.environ.get('DATABASE_URL')
     DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
@@ -93,7 +95,6 @@ else:
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -113,10 +114,53 @@ STATICFILES_FINDERS = [
 ]
 
 LOGIN_URL = 'login'
-# AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
+AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# Define the directory for log files
+LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGGING_DIR, exist_ok=True)
+
+# Configure logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_DIR, 'debug.log'),
+            'formatter': 'verbose',
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_DIR, 'django_db.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'hotel_your_choice': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    
+}

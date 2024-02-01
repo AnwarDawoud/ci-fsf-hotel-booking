@@ -1,16 +1,37 @@
+# Cloudinary Python
 cloudinary_python.txt
+
+# Django SQLite database file
 *.sqlite3
+
+# Core Microsoft files
 core.Microsoft*
+
+# Core MongoDB files
 core.mongo*
+
+# Core Python files
 core.python*
+
+# Virtual environment
 env.py
+env/
+*.env
+
+# Compiled Python files
 __pycache__/
 *.py[cod]
+
+# Node.js modules
 node_modules/
+
+# GitHub related files
 .github/
-*.env
+
+# Visual Studio Code related files
+.VSCODE/
+
+# Django database file
 db.sqlite3
-env
-DB
+DB/
 sqlite3.exe
-.VSCODE
