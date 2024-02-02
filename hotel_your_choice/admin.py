@@ -5,9 +5,19 @@ from django.contrib.auth.models import Group, Permission
 from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-import logging
-from django.contrib.admin.models import LogEntry
 
+from django.urls import reverse
+from django.contrib.admin.models import LogEntry
+from .models import (
+    Hotel, 
+    # Booking, 
+    CustomUser, 
+    # Rating, 
+    Amenity, 
+    Photo 
+    )
+
+import logging
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -76,7 +86,46 @@ administrator_group, _ = Group.objects.get_or_create(name='Administrators')
 hotel_managers_group, _ = Group.objects.get_or_create(name='Hotel Managers')
 users_group, _ = Group.objects.get_or_create(name='Users')
 
-# Get all permissions and assign them to the superuser
+# Get all permissions and assign them to the superuser if it exists
 all_permissions = Permission.objects.all()
 superuser = User.objects.filter(is_superuser=True).first()
-superuser.user_permissions.set(all_permissions)
+if superuser:
+    superuser.user_permissions.set(all_permissions)
+
+
+# Hotel Management 
+class HotelAdmin(admin.ModelAdmin):
+    list_display = ('name', 'night_rate', 'address', 'display_amenities', 'display_other_photos')
+
+    def display_amenities(self, obj):
+        # Convert amenities string to a list for display
+        return ', '.join(obj.amenities.split(', '))
+
+    display_amenities.short_description = 'Amenities'
+
+    def display_other_photos(self, obj):
+        return ', '.join(photo.image.url for photo in obj.other_photos.all())
+
+    display_other_photos.short_description = 'Other Photos'
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        obj = self.get_object(request, object_id)
+
+        amenities_link = format_html('<a href="{}?hotels__id__exact={}">{}</a>',
+                                     reverse('admin:hotel_your_choice_amenity_changelist'), obj.id, obj.amenities)
+
+        extra_context['amenities_link'] = amenities_link
+        return super().change_view(request, object_id, form_url, extra_context)
+
+
+admin.site.register(Hotel, HotelAdmin)
+
+
+
+class PhotoAdmin(admin.ModelAdmin):
+    list_display = ('hotel', 'image')
+
+
+admin.site.register(Photo, PhotoAdmin)

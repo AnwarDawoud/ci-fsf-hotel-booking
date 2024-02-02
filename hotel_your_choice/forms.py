@@ -9,17 +9,25 @@ from multiupload.fields import MultiFileField
 from PIL import Image
 from cloudinary.models import CloudinaryField
 from cloudinary.exceptions import Error as CloudinaryException
-from .models import Role
 
-from django import forms
+
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Group
 
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import Group
-from .models import CustomUser, Role
+
+
+from .models import (
+    CustomUser, 
+    Role,
+    # Booking, 
+    CustomUser, 
+    Hotel, 
+    # Comment, 
+    # Rating, 
+    Amenity, 
+    Photo
+)
 
 class CustomRegistrationForm(UserCreationForm):
     contact_number = forms.CharField(max_length=15, required=False)
@@ -84,3 +92,74 @@ class CustomRegistrationForm(UserCreationForm):
 class CustomPasswordResetForm(forms.Form):
     username = forms.CharField(max_length=150, required=True)
     new_password = forms.CharField(widget=forms.PasswordInput, required=True)
+    
+    
+    
+#Hotel Manager Codes    
+
+class MultiFileField(forms.FileField):
+    def to_python(self, data):
+        if data in self.empty_values:
+            return None
+        elif not isinstance(data, list):
+            data = [data]  # Ensure data is a list
+        return [super(MultiFileField, self).to_python(item) for item in data]
+
+
+class HotelForm(forms.ModelForm):
+    youtube_video_url = forms.URLField(label='YouTube Video URL', required=False)
+    other_photos = MultiFileField(required=False)
+    amenities = forms.CharField(label='Amenities', widget=forms.Textarea(attrs={'rows': 3}), required=False)
+    new_amenity_text = forms.CharField(label='New Amenity', required=False)
+
+    class Meta:
+        model = Hotel
+        # exclude = ['rated_bookings']  # Ensure 'id' is not included here
+        fields = ['name', 'description', 'address', 'night_rate', 'capacity', 'main_photo', 'youtube_video_url', 'amenities', 'other_photos']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }
+
+    def clean_other_photos(self):
+        print("Cleaning Other Photos...")
+        other_photos = self.cleaned_data.get('other_photos')
+        cleaned_photos = []
+
+        if other_photos is None:
+            other_photos = []  # Default value if other_photos is None
+
+        print(f"Other photos received: {other_photos}")
+
+        for photo in other_photos:
+            try:
+                with Image.open(photo) as img:
+                    img.verify()
+
+                # Append only verified photos to the list
+                cleaned_photos.append(photo)
+            except Exception as e:
+                print(f'Error verifying photo: {e}')
+                print(f'Problematic photo: {photo}')
+
+        return cleaned_photos
+
+    def clean_amenities(self):
+        print("Cleaning Amenities...")
+        amenities = self.cleaned_data.get('amenities', '')
+        new_amenity_text = self.cleaned_data.get('new_amenity_text')
+        if new_amenity_text:
+            amenities = new_amenity_text
+        return amenities
+
+    def save(self, commit=True):
+        hotel_instance = super().save(commit=False)
+
+        # Handle existing photos during editing
+        if hotel_instance.id:
+            existing_photos = Photo.objects.filter(hotel=hotel_instance)
+            hotel_instance.other_photos.set(existing_photos)
+
+        if commit:
+            hotel_instance.save()
+
+        return hotel_instance

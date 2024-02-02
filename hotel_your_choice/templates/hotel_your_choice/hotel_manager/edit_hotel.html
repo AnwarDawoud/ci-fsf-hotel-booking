@@ -1,0 +1,74 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<h1 class="center-align">Edit Hotel</h1>
+
+<div class="row">
+    <div class="col s12">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Render individual fields -->
+            <div class="input-field col s12">
+                <label for="{{ hotel_form.name.id_for_label }}">Name</label>
+                {{ hotel_form.name }}
+            </div>
+
+            <div class="input-field col s12">
+                <label for="{{ hotel_form.description.id_for_label }}">Description</label>
+                {{ hotel_form.description }}
+            </div>
+
+            <div class="input-field col s12">
+                <label for="{{ hotel_form.address.id_for_label }}">Address</label>
+                {{ hotel_form.address }}
+            </div>
+
+            <div class="input-field col s12">
+                <label for="{{ hotel_form.night_rate.id_for_label }}">Night Rate</label>
+                {{ hotel_form.night_rate }}
+            </div>
+
+            <div class="input-field col s12">
+                <label for="{{ hotel_form.capacity.id_for_label }}">Capacity</label>
+                {{ hotel_form.capacity }}
+            </div>
+
+            <div class="file-field input-field col s12">
+                <div class="btn">
+                    <span>Main Photo</span>
+                    <input type="file" name="main_photo" id="id_main_photo">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+            </div>
+
+            <!-- Amenities -->
+            <div class="row">
+                <div class="input-field col s12">
+                    <label for="id_amenities">Amenities</label>
+                    <textarea id="id_amenities" name="amenities" class="materialize-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="file-field input-field col s12">
+                    <div class="btn">
+                        <span>Other Photos</span>
+                        <input type="file" name="other_photos" id="id_other_photos" multiple>
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn waves-effect waves-light">edit_hotel Hotel</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

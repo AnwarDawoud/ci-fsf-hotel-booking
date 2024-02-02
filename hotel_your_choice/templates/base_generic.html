@@ -20,18 +20,27 @@
             <nav class="blue">
                 <div class="nav-wrapper">
                     <a href="{% url 'hotel_your_choice:view_hotels' %}">View Hotels</a>
-                    
-                <ul id="nav-mobile" class="right">
-                    {% if request.user.is_authenticated %}
-                        <li>Welcome, {{ request.user.username }}!</li>
-                        <li><a href="{% url 'hotel_your_choice:logout' %}">Logout</a></li>
-                        <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
-                    {% else %}
-                        <li><a href="{% url 'hotel_your_choice:login' %}">Login</a></li>
-                        <li><a href="{% url 'hotel_your_choice:register' %}">Register</a></li>
-                        
-                    {% endif %}
-                </ul>
+                    <ul id="nav-mobile" class="right">
+                        {% if user.is_authenticated %}
+                            {% if user.is_hotel_manager %}
+                                <li><a href="{% url 'hotel_your_choice:hotel_manager_dashboard' %}">Hotel Manager Dashboard</a>
+                                </li>
+                                <li><a href="{% url 'hotel_your_choice:add_hotel' %}">Add Hotel</a></li>
+                                <li><a href="{% url 'hotel_your_choice:manage_bookings' %}">Manage Bookings</a></li>
+                                <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
+                            {% elif user.is_client_user %}
+                            {% elif user.is_administrator %}
+                            {% endif %}
+                            
+                                <li>Welcome, {{ request.user.username }}!</li>
+                                <li><a href="{% url 'hotel_your_choice:logout' %}">Logout</a></li>
+                                <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
+                            {% else %}
+                                <li><a href="{% url 'hotel_your_choice:login' %}">Login</a></li>
+                                <li><a href="{% url 'hotel_your_choice:register' %}">Register</a></li>
+                               
+                        {% endif %}
+                    </ul>
                 </div>
             </nav>
         </header>
