@@ -5,17 +5,19 @@ from django.contrib.auth.models import Group, Permission
 from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from django.urls import reverse
 from django.contrib.admin.models import LogEntry
 from .models import (
     Hotel, 
-    # Booking, 
+    Booking, 
     CustomUser, 
-    # Rating, 
+    Rating, 
     Amenity, 
     Photo 
     )
+
 
 import logging
 User = get_user_model()
@@ -94,6 +96,10 @@ if superuser:
 
 
 # Hotel Management 
+class RatingInline(admin.TabularInline):
+    model = Rating
+    extra = 0
+
 class HotelAdmin(admin.ModelAdmin):
     list_display = ('name', 'night_rate', 'address', 'display_amenities', 'display_other_photos')
 
@@ -121,11 +127,74 @@ class HotelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Hotel, HotelAdmin)
-
-
+admin.site.register(Amenity)
 
 class PhotoAdmin(admin.ModelAdmin):
     list_display = ('hotel', 'image')
 
 
 admin.site.register(Photo, PhotoAdmin)
+
+
+# Clients Admin
+
+class BookingAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'user',
+        'hotel',
+        'check_in_date',
+        'check_out_date',
+        'booking_status_display'
+    )
+    list_filter = ('status', 'hotel')
+    search_fields = ('id', 'user__username', 'hotel__name')
+
+    def booking_status_display(self, obj):
+        if obj.status == 'active':
+            return format_html('<span class="booking-active">Booking Active</span>')
+        elif obj.status == 'canceled':
+            canceled_by_display = f' by {obj.canceled_by.username}' if obj.canceled_by else ' by USER ID#'
+            return format_html('<span class="booking-canceled">Booking Canceled{}</span>', canceled_by_display)
+        elif obj.status == 'rescheduled':
+            if obj.original_booking:
+                original_booking = obj.original_booking
+                return format_html('<span class="booking-rescheduled">Booking Rescheduled from ID#{0}</span>', original_booking.id)
+            else:
+                return format_html('<span class="booking-rescheduled">Booking Rescheduled (Original Booking Missing)</span>')
+        else:
+            return ''
+
+    booking_status_display.short_description = 'Booking Status'
+
+    class Media:
+        css = {
+            'all': ('hotel_your_choice_css/admin_styles.css',),
+        }
+
+
+admin.site.register(Booking, BookingAdmin)
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'get_booking', 'rating', 'text', 'timestamp')
+
+    def get_booking(self, obj):
+        return obj.booking
+
+    get_booking.short_description = 'Booking'
+    
+    
+    
+class ReschedulingStatusFilter(admin.SimpleListFilter):
+    title = 'Rescheduling Status'
+    parameter_name = 'rescheduling_status'
+
+    def lookups(self, request, model_admin):
+        return Booking.STATUS_CHOICES
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(status=self.value())
+        return queryset    

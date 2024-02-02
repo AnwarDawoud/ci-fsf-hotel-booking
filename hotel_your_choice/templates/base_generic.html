@@ -29,12 +29,17 @@
                                 <li><a href="{% url 'hotel_your_choice:manage_bookings' %}">Manage Bookings</a></li>
                                 <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
                             {% elif user.is_client_user %}
+                                <li><a
+                                href="{% if hotel.id and hotel.name %}{% url 'hotel_your_choice:book_hotel' hotel_id=hotel.id hotel_name=hotel.name|slugify %}{% endif %}">Book
+                                Hotel</a>
+                                </li>
+                                <li><a href="{% url 'hotel_your_choice:client_dashboard' %}">Client Dashboard</a></li>
+                                <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
                             {% elif user.is_administrator %}
                             {% endif %}
                             
                                 <li>Welcome, {{ request.user.username }}!</li>
                                 <li><a href="{% url 'hotel_your_choice:logout' %}">Logout</a></li>
-                                <li><a href="{% url 'hotel_your_choice:unsubscribe' %}">Unsubscribe</a></li>
                             {% else %}
                                 <li><a href="{% url 'hotel_your_choice:login' %}">Login</a></li>
                                 <li><a href="{% url 'hotel_your_choice:register' %}">Register</a></li>

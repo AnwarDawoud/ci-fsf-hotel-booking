@@ -13,13 +13,13 @@ from .views import (
     CustomPasswordResetConfirmView, 
     CustomPasswordResetView, 
     # add_comment, 
-    # book_hotel, 
+    book_hotel, 
     # delete_comment,
     # delete_experience, 
     # dislike_comment, 
     # like_comment, 
-    # reschedule_booking, 
-    # cancel_booking,
+    reschedule_booking, 
+    cancel_booking,
     generate_excel, 
     manage_bookings,
     edit_hotel,
@@ -61,6 +61,17 @@ urlpatterns = [
         path('delete-hotel/<int:hotel_id>/', delete_hotel, name='delete_hotel'),
         
         # Add other hotel manager URLs as needed
+    ])),
+    
+    # Client URLs
+    path('client/', include([
+        path('dashboard/', views.client_dashboard, name='client_dashboard'),
+        path('client/book-hotel/<int:hotel_id>/<str:hotel_name>/', book_hotel, name='book_hotel'),
+        path('client/hotel_your_choice/reschedule-booking/<int:booking_id>/', reschedule_booking, name='reschedule_booking'),
+        path('cancel-booking/<int:booking_id>/', cancel_booking, name='cancel_booking'),
+        path('rate-experience/<int:booking_id>/', views.rate_experience, name='rate_experience'),
+        path('view-ratings/', views.view_user_ratings, name='view_ratings'),
+        # Add other client URLs as needed
     ])),
     
     # Admin URLs

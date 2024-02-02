@@ -24,21 +24,21 @@ from django.views.decorators.csrf import csrf_protect
 from django.db import IntegrityError, transaction
 # Local app imports 
 from .forms import (
-    # CommentForm, 
+    CommentForm, 
     CustomRegistrationForm, 
     HotelForm, 
-    # ModifyBookingForm, 
-    # RatingForm, 
-    # YourBookingForm
+    ModifyBookingForm, 
+    RatingForm, 
+    YourBookingForm
     )
 from .models import (
     Amenity, 
-    # Booking, 
-    # Comment, 
+    Booking, 
+    Comment, 
     CustomUser, 
     Hotel, 
     Photo, 
-    # Rating, 
+    Rating, 
     # UserActivity
     )
                      
@@ -201,12 +201,6 @@ def unsubscribe_view(request):
             messages.error(request, 'User not found.')
     return render(request, 'hotel_your_choice/unsubscribe.html')
 
-
-# Common pages Views
-
-def view_hotels(request):
- 
-    return render(request, 'hotel_your_choice/common/view_hotels.html', context={})
 
 
 # Hotel Manager views 
@@ -452,3 +446,325 @@ def view_booking_details(request, booking_id):
     # Render the template with the booking details
     return render(request, 'hotel_your_choice/hotel_manager/view_booking_details.html', {'selected_booking': selected_booking})
 
+
+# Clients users views
+
+@login_required
+def book_hotel(request, hotel_id, hotel_name):
+    available_hotels = Hotel.objects.all()
+
+    if request.method == 'POST':
+        form = YourBookingForm(request.POST)
+
+        if form.is_valid():
+            selected_hotel_id = form.cleaned_data['hotel'].id
+            selected_hotel = get_object_or_404(Hotel, pk=selected_hotel_id)
+
+            check_in_date = form.cleaned_data['check_in_date']
+            check_out_date = form.cleaned_data['check_out_date']
+            guests = form.cleaned_data['guests']
+            reschedule_booking_id = form.cleaned_data.get('existing_booking_id')
+
+            try:
+                with transaction.atomic():
+                    if reschedule_booking_id:
+                        # Reschedule existing booking logic
+                        existing_booking = get_object_or_404(Booking, pk=reschedule_booking_id, user=request.user)
+
+                        # Cancel the original booking
+                        existing_booking.cancel()
+
+                        # Create a new booking with the rescheduled dates
+                        new_booking = Booking.objects.create(
+                            user=request.user,
+                            hotel=selected_hotel,
+                            check_in_date=check_in_date,
+                            check_out_date=check_out_date,
+                            guests=guests
+                        )
+
+                        messages.success(request, f"Booking rescheduled successfully. New Booking ID: {new_booking.id}")
+                    else:
+                        # Check for double booking before creating a new booking
+                        if Booking.objects.filter(
+                            hotel=selected_hotel,
+                            check_in_date__lt=check_out_date,
+                            check_out_date__gt=check_in_date
+                        ).exists():
+                            messages.error(request, "Selected dates are not available. Please choose different dates.")
+                        else:
+                            # Create a new booking
+                            new_booking = Booking.objects.create(
+                                user=request.user,
+                                hotel=selected_hotel,
+                                check_in_date=check_in_date,
+                                check_out_date=check_out_date,
+                                guests=guests
+                            )
+
+                            messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
+
+                            # Redirect to the client dashboard after a successful booking
+                            return redirect('hotel_your_choice:client_dashboard')
+
+            except IntegrityError as e:
+                messages.error(request, "An error occurred while processing your booking. Please try again.")
+        else:
+            print("Form errors:", form.errors)
+    else:
+        form = YourBookingForm(initial={'hotel': hotel_id})
+
+    context = {
+        'hotel_name': hotel_name,
+        'form': form,
+        'available_hotels': available_hotels,
+        'selected_hotel_id': hotel_id,
+        'selected_hotel_name': hotel_name,
+    }
+
+    return render(request, 'hotel_your_choice/client/book_hotel.html', context)
+
+
+def reschedule_booking(request):
+    # Your implementation here
+    pass
+
+def cancel_booking(request):
+    # Your implementation here
+    pass
+
+
+
+@login_required
+def client_dashboard(request):
+    active_and_rescheduled_bookings = Booking.objects.filter(
+        user=request.user,
+    ).exclude(status='canceled')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        booking_id = request.POST.get('booking_id')
+
+        try:
+            booking_id = int(booking_id)
+        except ValueError:
+            print(f"Invalid booking ID: {booking_id}")
+            messages.error(request, "Invalid booking ID.")
+            return redirect('hotel_your_choice:client_dashboard')
+
+        print(f"Booking ID after conversion: {booking_id}")
+
+        if action == 'reschedule_booking':
+            new_check_in_date = request.POST.get('new_check_in_date')
+            new_check_out_date = request.POST.get('new_check_out_date')
+
+            if new_check_in_date and new_check_out_date:
+                booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+                # Create a rescheduled booking using YourBookingForm
+                form_data = {
+                    'user': booking.user,
+                    'hotel': booking.hotel,
+                    'check_in_date': new_check_in_date,
+                    'check_out_date': new_check_out_date,
+                    'guests': booking.guests,
+                    'reschedule_booking': True,  # Indicate this is a rescheduled booking
+                }
+                form = YourBookingForm(form_data, instance=booking)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, "Booking rescheduled successfully.")
+                else:
+                    messages.error(request, "Invalid rescheduling data. Please try again.")
+            else:
+                messages.error(request, "Invalid rescheduling data. Please try again.")
+
+        elif action == 'cancel_booking':
+            print(f"Attempting to cancel booking with ID: {booking_id}")
+            booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+            print(f"Booking found: {booking}")
+
+            booking.status = 'canceled'
+            booking.canceled_by = request.user
+            booking.save()
+
+            messages.success(request, "Booking canceled successfully.")
+
+        return redirect('hotel_your_choice:client_dashboard')
+
+    context = {'bookings': active_and_rescheduled_bookings, 'booking_form': YourBookingForm()}
+    return render(request, 'hotel_your_choice/client/client_dashboard.html', context)
+
+
+@login_required
+def rate_experience(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id)
+    user = request.user
+
+    existing_rating = Rating.objects.filter(booking=booking, user=user).first()
+
+    if existing_rating:
+        messages.warning(request, 'You have already rated this booking. Rating update is not allowed.')
+        return redirect('hotel_your_choice:client_dashboard')
+
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+
+        if form.is_valid():
+            rating_value = form.cleaned_data['rating'][0]  # Access the first element of the list
+            text = form.cleaned_data['text']
+
+            # Create a new rating
+            new_rating = Rating.objects.create(
+                booking=booking,
+                user=user,
+                rating=rating_value,
+                text=text,
+                hotel=booking.hotel  # Assign the hotel associated with the booking
+            )
+
+            # Update the hotel's average rating
+            hotel = booking.hotel
+            ratings = Rating.objects.filter(hotel=hotel)
+            num_ratings = ratings.count()
+            total_rating = sum(rating.rating for rating in ratings)
+            hotel.average_rating = total_rating / num_ratings
+            hotel.save()
+
+            messages.success(request, 'Rating added successfully.')
+            return redirect('hotel_your_choice:client_dashboard')
+
+        else:
+            messages.error(request, 'Invalid rating form. Please correct the errors below.')
+
+    else:
+        form = RatingForm()
+
+    return render(request, 'hotel_your_choice/client/rate_experience.html', {'booking': booking, 'form': form})
+
+
+def view_user_ratings(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+
+    # Your logic to retrieve user ratings from the database
+    # For demonstration purposes, assume you have a Rating model with appropriate fields
+    user_ratings = Rating.objects.filter(user=user)
+    ratings_data = [{'rating': rating.rating, 'comment': rating.comment, 'approved': rating.approved} for rating in user_ratings]
+
+    return JsonResponse(ratings_data, safe=False)
+
+
+# Common Views
+
+def view_hotels(request):
+    hotels = Hotel.objects.all().prefetch_related('rated_bookings__ratings')
+
+    
+
+    context = {'hotels': hotels}
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            rating_id = request.POST.get('rating_id')
+
+            if rating_id:
+                rating = get_object_or_404(Rating, id=rating_id)
+
+                # Check if the rating belongs to an active booking
+                if rating.booking.status == 'active':
+                    comment = Comment(text=text, rating=rating, booking=rating.booking)
+                    comment.save()
+
+                    # Update the context to include the new comment for the specific hotel
+                    hotel = rating.hotel
+                    hotel.rated_bookings.set(
+                        Booking.objects.filter(hotel=hotel, status='active', ratings__isnull=False)
+                    )
+                    context['hotels'] = hotels  # Update only if needed
+
+                    messages.success(request, 'Comment added successfully.')
+                else:
+                    messages.error(request, 'Booking is not active. Comment cannot be added.')
+            else:
+                messages.error(request, 'Invalid Rating ID. Comment cannot be added.')
+        else:
+            messages.error(request, 'Invalid comment form. Please check the form.')
+
+    context['comment_form'] = CommentForm()
+    return render(request, 'hotel_your_choice/common/view_hotels.html', context)
+
+@login_required
+@require_POST
+@csrf_protect
+
+def delete_comment(request, comment_id):
+    try:
+        comment = get_object_or_404(Comment, pk=comment_id)
+        comment.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+def add_comment(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.booking = booking
+
+            # Set the timestamp field explicitly before saving
+            comment.timestamp = timezone.now()
+
+            comment.save()
+
+            # Update like and dislike counts
+            likes_count = comment.likes_count
+            dislikes_count = comment.dislikes_count
+
+            return JsonResponse({
+                'status': 'success',
+                'comment_id': comment.id,
+                'comment_text': comment.text,
+                'likes_count': likes_count,
+                'dislikes_count': dislikes_count,
+            })
+
+    return JsonResponse({'status': 'error', 'errors': form.errors})
+
+
+def like_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    comment.likes_count += 1
+
+    # Update the timestamp field
+    comment.timestamp = timezone.now()
+
+    comment.save()
+    return JsonResponse({'likes_count': comment.likes_count})
+
+
+def dislike_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    comment.dislikes_count += 1
+
+    # Update the timestamp field
+    comment.timestamp = timezone.now()
+
+    comment.save()
+    return JsonResponse({'dislikes_count': comment.dislikes_count})
+
+
+def delete_experience(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    if request.method == 'POST':
+        Comment.objects.filter(booking_id=booking_id).delete()
+        Rating.objects.filter(booking_id=booking_id).delete()
+        return redirect('hotel_your_choice:view_hotels')
+
+    return HttpResponse("Method not allowed", status=405)

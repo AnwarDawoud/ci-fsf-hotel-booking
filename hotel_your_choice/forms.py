@@ -20,11 +20,11 @@ from django.core.exceptions import ValidationError
 from .models import (
     CustomUser, 
     Role,
-    # Booking, 
+    Booking, 
     CustomUser, 
     Hotel, 
-    # Comment, 
-    # Rating, 
+    Comment, 
+    Rating, 
     Amenity, 
     Photo
 )
@@ -95,7 +95,7 @@ class CustomPasswordResetForm(forms.Form):
     
     
     
-#Hotel Manager Codes    
+#Hotel Manager Forms    
 
 class MultiFileField(forms.FileField):
     def to_python(self, data):
@@ -163,3 +163,79 @@ class HotelForm(forms.ModelForm):
             hotel_instance.save()
 
         return hotel_instance
+    
+# Clients Forms
+
+class ModifyBookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = '__all__'
+
+
+# Modify YourBookingForm to handle rescheduling
+class YourBookingForm(forms.ModelForm):
+    reschedule_booking = forms.BooleanField(
+        required=False,
+        widget=forms.HiddenInput(),
+        initial=False,
+    )
+
+    class Meta:
+        model = Booking
+        fields = ['hotel', 'check_in_date', 'check_out_date', 'guests', 'reschedule_booking']
+        widgets = {
+            'check_in_date': forms.DateInput(attrs={'type': 'date'}),
+            'check_out_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Specify the input format for date fields
+        date_format = '%Y-%m-%d'
+        self.fields['check_in_date'].input_formats = [date_format]
+        self.fields['check_out_date'].input_formats = [date_format]    
+        
+        
+        
+# class RatingForm(forms.Form):
+#     rating = forms.ChoiceField(label='Rating (1-5)', choices=[(str(i), str(i)) for i in range(1, 6)], widget=forms.RadioSelect(attrs={'class': 'with-gap'}))
+#     text = forms.CharField(label='Rating Text', widget=forms.Textarea(attrs={'class': 'materialize-textarea'}), required=False)
+    
+class RatingForm(forms.Form):
+    RATING_CHOICES = (
+        ('1', '1'),
+        ('2', '2'),
+        ('3', '3'),
+        ('4', '4'),
+        ('5', '5'),
+    )
+    rating = forms.MultipleChoiceField(choices=RATING_CHOICES, widget=forms.CheckboxSelectMultiple)
+    text = forms.CharField(widget=forms.Textarea, required=False)
+    
+class RescheduleForm(forms.Form):
+    new_check_in_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    new_check_out_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+
+
+class CancelBookingForm(forms.Form):
+    reason = forms.CharField(widget=forms.Textarea)  
+    
+    
+# Common Forms
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text', 'rating']  # Add or remove fields as needed
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['text'].widget = forms.Textarea(attrs={'rows': 3})  # Customize widget if needed
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.timestamp = timezone.now()  # Set the timestamp automatically
+        if commit:
+            instance.save()
+        return instance    
+            

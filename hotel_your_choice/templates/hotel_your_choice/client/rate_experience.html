@@ -1,0 +1,55 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+<style>
+    /* Add custom CSS to add spacing between radio buttons */
+    .rating-checkboxes .col {
+        margin-top: 50px; /* Adjust the margin as needed */
+    }
+</style>
+
+
+<div class="container">
+    <h1>Rate Experience</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        
+        <div class="row rating-checkboxes">
+            <div class="input-field col s12">
+                <label for="rating">Rating (1-5):</label>
+                <div class="row">
+                    {% for rating in form.rating.field.choices %}
+                    <div class="col s2">
+                        <label>
+                            <input type="radio" id="rating{{ rating.0 }}" name="rating" value="{{ rating.0 }}" class="with-gap"/>
+                            <span>{{ rating.1 }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-field col s12">
+                <label for="text">Rating Text:</label>
+                {{ form.text }} {# Render the text field #}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <button class="btn waves-effect waves-light" type="submit" name="like_action" value="like">Submit
+                    <i class="material-icons right"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
