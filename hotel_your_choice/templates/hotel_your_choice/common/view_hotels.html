@@ -13,9 +13,9 @@
         {% for hotel in hotels %}
         <div class="col s12">
             <div class="card horizontal">
-                <div class="card-image">
+                <div class="card-image mobile-above-hotel-container">
                     {% if hotel.main_photo %}
-                    <img src="{{ hotel.main_photo.url }}" alt="{{ hotel.name }} Photo">
+                        <img src="{{ hotel.main_photo.url }}" alt="{{ hotel.name }} Photo">
                     {% endif %}
                 </div>
                 {% if user.is_authenticated and user == hotel.manager %}
@@ -29,15 +29,15 @@
                     <button type="submit" class="btn btn-small waves-effect waves-light red">Delete Hotel</button>
                 </form>
                 {% endif %}
-                <div class="card-stacked">
+                <div class="card-stacked orange lighten-4">
                     <div class="card-content">
-                        <h4>{{ hotel.name }}</h4>
+                        <h2>{{ hotel.name }}</h2>
                         <a id="readMoreLink_{{ hotel.id }}" href="javascript:void(0);"
-                            onclick="showReadMoreModal('{{ hotel.id }}');">More Details about Hotel</a>
+                            <a id="readMoreLink_{{ hotel.id }}" href="javascript:void(0);" onclick="showReadMoreModal('{{ hotel.id }}');" style="color: #333333; text-decoration: underline;">More Details about Hotel</a>
 
                         <!-- Modal content -->
                         <div class="modal-read-more" id="readMoreModal{{ hotel.id }}">
-                            <h4>{{ hotel.name }}</h4>
+                            <h2>{{ hotel.name }}</h2>
                             <p>{{ hotel.description }}</p>
                             <!-- Include other details as needed -->
                             <button onclick="hideReadMoreModal('{{ hotel.id }}')">Close</button>
@@ -82,11 +82,10 @@
                         <!-- Display overall rating section for each hotel -->
                         {% if hotel.rated_bookings %}
                         <div class="hotel-container" data-hotel-id="{{ hotel.id }}">
-                            <a class="btn-small blue waves-effect waves-light pulse toggle-ratings ratings-button modal-trigger"
-                                href="#ratingsModal{{ hotel.id }}">
+                            <a class="btn-small orange darken-2 waves-effect waves-light pulse toggle-ratings ratings-button modal-trigger custom-text-color"
+                                href="#ratingsModal{{ hotel.id }}" style="margin-top: 10px;">
                                 Ratings
                             </a>
-
                             <div id="ratingsModal{{ hotel.id }}" class="modal">
                                 <div class="modal-content">
                                     <h5 class="modal-title">Detailed Ratings</h5>

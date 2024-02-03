@@ -15,7 +15,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="messageModalLabel">Message</h5>
+                <h3 class="modal-title" id="messageModalLabel">Message</h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -43,15 +43,15 @@
     <!-- Add other booking information as needed -->
 
     <!-- Add links/buttons for actions like rating, rescheduling, and cancellation -->
-    <a href="{% url 'hotel_your_choice:rate_experience' booking.id %}">Rate your experience</a>
+    <a href="{% url 'hotel_your_choice:rate_experience' booking.id %}" class="black-text underline">Rate your experience</a>
 
     <form method="post" action="{% url 'hotel_your_choice:client_dashboard' %}">
         {% csrf_token %}
         <input type="hidden" name="booking_id" value="{{ booking.id }}">
         <input type="hidden" name="action" value="reschedule_booking">
-        <label for="newCheckInDate">New Check-In Date:</label>
+        <label for="newCheckInDate" style="color: #333;">New Check-In Date:</label>
         <input type="text" id="newCheckInDate" name="new_check_in_date" data-input>
-        <label for="newCheckOutDate">New Check-Out Date:</label>
+        <label for="newCheckOutDate" style="color: #333;">New Check-Out Date:</label>
         <input type="text" id="newCheckOutDate" name="new_check_out_date" data-input>
         <button type="submit" onclick="reloadPage()">Reschedule</button>
     </form>

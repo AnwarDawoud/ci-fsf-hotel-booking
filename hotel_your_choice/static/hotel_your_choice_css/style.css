@@ -8,11 +8,12 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    margin-bottom: 60px; /* Add margin at the bottom to create space for the footer */
 }
 
 header {
-    background-color: #151ea3;
-    color: white;
+    background-color: darkorange;
+    color: darkblue;
     padding: 1em;
     text-align: center;
 }
@@ -30,188 +31,108 @@ nav li {
 
 nav a {
     text-decoration: none;
-    color: white;
+    color: rgb(29, 1, 1);
     font-weight: bold;
 }
 
 main {
     padding: 1em;
-}
-
-h1 {
-    text-align: center;
-    color: #333;
-    padding: 20px;
-    background-color: #fff;
-    margin-bottom: 20px;
+    bottom: 50px;
+    margin-bottom: 20px; /* Add margin between main content and footer */
 }
 
 footer {
-    background-color: #151ea3;
-    color: white;
-    padding: 1em;
-    text-align: center;
-    margin-top: auto;
-}
-
-/* Media Queries */
-@media screen and (max-width: 600px) {
-    nav {
-        text-align: center;
-    }
-
-    nav li {
-        display: block;
-        margin: 10px 0;
-    }
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    margin-bottom: 10px;
-}
-
-form {
-    margin-top: 20px;
-}
-
-/* Add more styles as needed */
-/* Add this to your existing style.css or create a new CSS file for the dashboard */
-
-/* Table Styles */
-.booking-table {
+    position: initial;
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 50px;
-}
-
-.booking-table th,
-.booking-table td {
-    border: 1px solid #150404;
-    padding: 10px;
+    background-color: darkorange;
+    color: white;
     text-align: center;
+    padding: 10px 0;
+    margin-top: auto; /* Align the footer to the bottom of the viewport */
 }
 
-.booking-table th {
-    background-color: #f2f2f2;
+h1 {
+    font-size: 28px !important;
 }
 
-/* Optional: Hover effect on rows */
-.booking-table tbody tr:hover {
-    background-color: #e0e0e0;
+h2 {
+    font-size: 24px !important;
 }
 
-/* Optional: Responsive Table Styling */
-@media screen and (max-width: 600px) {
-    .booking-table {
-        overflow-x: auto;
-        display: block;
+h3 {
+    font-size: 20px !important;
+}
+
+h4 {
+    font-size: 18px !important;
+}
+
+h5 {
+    font-size: 16px !important;
+}
+
+h6 {
+    font-size: 14px !important;
+}
+
+nav a {
+    color: darkblue !important;
+}
+
+/* Override Materialize CSS styles for the nav bar */
+nav {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: darkblue !important;
+}
+
+/* Style the 'a' element to look like a button */
+nav a.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: darkblue;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+nav a.button:hover {
+    background-color: blue;
+
+}
+
+.custom-text-color {
+    color: #000 !important;
+    margin-bottom: 15px !important;
+    
+}
+
+/* Custom CSS for the mobile-above-hotel-container class */
+.mobile-above-hotel-container {
+    margin-top: 33px; /* Add margin top */
+    margin-left: 10px; /* Add margin left */
+}
+
+/* Media query for all devices */
+@media screen and (max-width: 992px) {
+    .mobile-above-hotel-container {
+        margin-top: 33px; /* Add margin top */
+        margin-left: 10px; /* Add margin left */
     }
+}
 
-    .booking-table thead,
-    .booking-table tbody,
-    .booking-table th,
-    .booking-table td,
-    .booking-table tr {
-        display: block;
-    }
-
-    .booking-table th {
+/* Define the style for mobile devices */
+@media only screen and (max-width: 600px) {
+    .mobile-above-hotel-container {
+        /* Add your mobile-specific styles here */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 10px;
         text-align: center;
     }
-
-    /* Hide table headers (but keep accessible for screen readers) */
-    .booking-table thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-
-    .booking-table tbody tr {
-        margin-bottom: 20px;
-    }
-}
-
-/* Add custom modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 80%;
-    /* Adjust this value as needed */
-    width: auto;
-    max-height: 80vh;
-    /* Adjust this value as needed */
-    overflow-y: auto;
-    /* Enable vertical scrolling if the content exceeds the viewport */
-    background-color: white;
-    padding: 20px;
-    z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Close button styles */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 20px;
-}
-
-canvas {
-    display: block;
-}
-
-
-.comment-text {
-    white-space: pre-wrap;
-}
-
-ul.custom-list {
-    list-style: none;
-}
-
-li::marker {
-    display: none;
-}
-
-::marker {
-    display: none;
-    unicode-bidi: isolate;
-    font-variant-numeric: tabular-nums;
-    text-transform: none;
-    text-indent: 0px !important;
-    text-align: start !important;
-    text-align-last: start !important;
-}
-
-
-
-
-.status-active {
-    color: green;
-}
-
-.status-canceled {
-    color: red;
-}
-
-.status-rescheduled {
-    color: blue;
-}
-
-.status-not-applicable {
-    color: grey;
-}
-
-
-.btn-wrapper {
-    margin-top: 40px; /* Adjust the margin-top value as needed */
 }
