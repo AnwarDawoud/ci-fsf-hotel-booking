@@ -12,12 +12,12 @@ from . import views
 from .views import (
     CustomPasswordResetConfirmView, 
     CustomPasswordResetView, 
-    # add_comment, 
+    add_comment, 
     book_hotel, 
-    # delete_comment,
-    # delete_experience, 
-    # dislike_comment, 
-    # like_comment, 
+    delete_comment,
+    delete_experience, 
+    dislike_comment, 
+    like_comment, 
     reschedule_booking, 
     cancel_booking,
     generate_excel, 
@@ -39,7 +39,11 @@ urlpatterns = [
 
 # Common User URLs
     path('view-hotels/', views.view_hotels, name='view_hotels'),
-    
+    path('delete-experience/<int:booking_id>/', delete_experience, name='delete_experience'),
+    path('add-comment/<int:booking_id>/', add_comment, name='add_comment'),
+    path('delete_comment/<int:comment_id>/', delete_comment, name='delete_comment'),
+    path('like-comment/<int:comment_id>/', like_comment, name='like_comment'),
+    path('dislike-comment/<int:comment_id>/', dislike_comment, name='dislike_comment'),
     
     # Authentication and Authorization URLs
     path('auth/', include([

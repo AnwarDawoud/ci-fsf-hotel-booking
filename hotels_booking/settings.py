@@ -3,6 +3,8 @@ import dj_database_url
 from dotenv import load_dotenv
 from django.db import models
 from pathlib import Path
+from decouple import config
+
 import logging
 
 
@@ -99,6 +101,12 @@ else:
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY = {
+    'cloud_name': config('CLOUDINARY_CLOUD_NAME'),
+    'api_key': config('CLOUDINARY_API_KEY'),
+    'api_secret': config('CLOUDINARY_API_SECRET'),
+    'secure': True  # Ensure HTTPS URLs
+}
 
 STATIC_URL = '/static/'
 

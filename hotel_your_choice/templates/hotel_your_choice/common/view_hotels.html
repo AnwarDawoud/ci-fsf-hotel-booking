@@ -4,11 +4,7 @@
 {% block content %}
 {% load cloudinary %}
 <link rel="stylesheet" href="{% static 'hotel_your_choice_css/view_hotels.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-<style>
-    /* Add your additional styles here */
-</style>
 
 <h1 class="center-align">Hotel Information</h1>
 
@@ -107,7 +103,7 @@
                                             Booking Status: {{ booking.status }},
                                             Booking Date: {{ booking.date }},
 
-                                            {% comment %} {% if request.user.is_staff %}
+                                            {% if request.user.is_staff %}
                                             {% if rating %}
                                             <form method="post"
                                                 action="{% url 'hotel_your_choice:delete_experience' booking.id %}">
@@ -115,7 +111,7 @@
                                                 <input type="submit" value="Delete Rate Experience">
                                             </form>
                                             {% endif %}
-                                            {% endif %} {% endcomment %}
+                                            {% endif %}
 
                                             {% if booking.comments.exists %}
                                             <ul class="comment-list">
@@ -172,7 +168,7 @@
                                             </ul>
                                             {% endif %}
 
-                                            {% comment %} <form class="add-comment-form" data-booking-id="{{ booking.id }}"
+                                            <form class="add-comment-form" data-booking-id="{{ booking.id }}"
                                                 action="{% url 'hotel_your_choice:add_comment' booking.id %}"
                                                 method="post">
                                                 {% csrf_token %}
@@ -180,7 +176,7 @@
                                                 {{ comment_form.text }}
                                                 <input type="hidden" name="rating_id" value="{{ rating.id }}">
                                                 <button type="submit" class="add-comment-btn">Add Comment</button>
-                                            </form> {% endcomment %}
+                                            </form> 
 
                                             <div class="ratings-details">
                                                 <p>User: {{ booking.user.username }}</p>
