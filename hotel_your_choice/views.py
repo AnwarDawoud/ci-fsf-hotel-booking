@@ -548,27 +548,35 @@ def book_hotel(request, hotel_id, hotel_name):
             check_in_date = form.cleaned_data['check_in_date']
             check_out_date = form.cleaned_data['check_out_date']
             
-            # Check for overlapping bookings
-            overlapping_bookings = Booking.objects.filter(
-                Q(hotel_id=hotel_id) &
-                (
-                    Q(check_in_date__lte=check_in_date, check_out_date__gte=check_in_date) |
-                    Q(check_in_date__lte=check_out_date, check_out_date__gte=check_out_date) |
-                    Q(check_in_date__gte=check_in_date, check_out_date__lte=check_out_date)
-                )
-            )
-            
-            if overlapping_bookings.exists():
-                # Handle overlapping bookings
-                # You can customize this part based on your requirements
-                message = "There are overlapping bookings for the selected dates."
+            # Check if the booking dates are backdated
+            if check_in_date < timezone.now().date():
+                message = "Backdated bookings are not allowed."
+            elif check_out_date < timezone.now().date():
+                message = "Backdated bookings are not allowed."
+            elif check_out_date < check_in_date:
+                message = "Check-out date cannot be before check-in date."
             else:
-                # Create new booking if there are no overlapping bookings
-                new_booking = form.save(commit=False)
-                new_booking.user = request.user
-                new_booking.save()
-                messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
-                return redirect("hotel_your_choice:client_dashboard")
+                # Check for overlapping bookings
+                overlapping_bookings = Booking.objects.filter(
+                    Q(hotel_id=hotel_id) &
+                    (
+                        Q(check_in_date__lte=check_in_date, check_out_date__gte=check_in_date) |
+                        Q(check_in_date__lte=check_out_date, check_out_date__gte=check_out_date) |
+                        Q(check_in_date__gte=check_in_date, check_out_date__lte=check_out_date)
+                    )
+                )
+                
+                if overlapping_bookings.exists():
+                    # Handle overlapping bookings
+                    # You can customize this part based on your requirements
+                    message = "There are overlapping bookings for the selected dates."
+                else:
+                    # Create new booking if there are no overlapping bookings and the dates are valid
+                    new_booking = form.save(commit=False)
+                    new_booking.user = request.user
+                    new_booking.save()
+                    messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
+                    return redirect("hotel_your_choice:client_dashboard")
         else:
             messages.error(request, "Error creating booking.")
     else:
