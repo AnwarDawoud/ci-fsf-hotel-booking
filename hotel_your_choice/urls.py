@@ -100,11 +100,7 @@ urlpatterns = [
         include(
             [
                 path("dashboard/", views.client_dashboard, name="client_dashboard"),
-                path(
-                    "client/book-hotel/<int:hotel_id>/<str:hotel_name>/",
-                    book_hotel,
-                    name="book_hotel",
-                ),
+                path("client/book-hotel/<int:hotel_id>/<str:hotel_name>/", views.book_hotel, name="book_hotel"),
                 path(
                     "client/hotel_your_choice/reschedule-booking/<int:booking_id>/",
                     reschedule_booking,

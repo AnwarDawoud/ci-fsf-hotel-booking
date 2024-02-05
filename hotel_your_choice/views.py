@@ -531,18 +531,44 @@ def view_booking_details(request, booking_id):
 
 from django.shortcuts import redirect
 
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 @login_required
 def book_hotel(request, hotel_id, hotel_name):
+    message = None  # Initialize message variable
     if request.method == "POST":
         form = YourBookingForm(request.POST)
         if form.is_valid():
             selected_hotel = Hotel.objects.get(pk=hotel_id)
             form.instance.hotel = selected_hotel
-            new_booking = form.save(commit=False)
-            new_booking.user = request.user
-            new_booking.save()
-            messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
-            return redirect("hotel_your_choice:client_dashboard")
+            
+            # Get form data
+            check_in_date = form.cleaned_data['check_in_date']
+            check_out_date = form.cleaned_data['check_out_date']
+            
+            # Check for overlapping bookings
+            overlapping_bookings = Booking.objects.filter(
+                Q(hotel_id=hotel_id) &
+                (
+                    Q(check_in_date__lte=check_in_date, check_out_date__gte=check_in_date) |
+                    Q(check_in_date__lte=check_out_date, check_out_date__gte=check_out_date) |
+                    Q(check_in_date__gte=check_in_date, check_out_date__lte=check_out_date)
+                )
+            )
+            
+            if overlapping_bookings.exists():
+                # Handle overlapping bookings
+                # You can customize this part based on your requirements
+                message = "There are overlapping bookings for the selected dates."
+            else:
+                # Create new booking if there are no overlapping bookings
+                new_booking = form.save(commit=False)
+                new_booking.user = request.user
+                new_booking.save()
+                messages.success(request, f"Booking created successfully. New Booking ID: {new_booking.id}")
+                return redirect("hotel_your_choice:client_dashboard")
         else:
             messages.error(request, "Error creating booking.")
     else:
@@ -553,8 +579,11 @@ def book_hotel(request, hotel_id, hotel_name):
         "form": form,
         "selected_hotel_id": hotel_id,
         "selected_hotel_name": hotel_name,
+        "message": message,  # Pass message to template
     }
     return render(request, "hotel_your_choice/client/book_hotel.html", context)
+
+
 
 
 def reschedule_booking(request):
