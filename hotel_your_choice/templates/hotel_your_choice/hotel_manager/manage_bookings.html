@@ -1,6 +1,5 @@
-<!-- hotel_manager/manage_bookings.html -->
-
 {% extends 'base_generic.html' %}
+{% load static %}
 
 {% block title %}Manage Bookings{% endblock %}
 
@@ -10,21 +9,27 @@
 <p>This is the page to view and manage bookings for the hotels you manage.</p>
 
 <!-- Filtering options -->
-<form method="get" action="">
-    <label>Status Filter:</label>
-    <select name="status_filter">
-        <option value="all" {% if request.GET.status_filter == 'all' %}selected{% endif %}>All</option>
-        <option value="active" {% if request.GET.status_filter == 'active' %}selected{% endif %}>Active</option>
-        <option value="canceled" {% if request.GET.status_filter == 'canceled' %}selected{% endif %}>Canceled</option>
-        <!-- Add more options based on your status choices -->
-    </select>
-    <input type="submit" value="Apply Filter">
-</form>
-
-
+    <div class="row">
+        <form class="col s12" method="get" action="">
+            <div class="row">
+                <div class="input-field col s6">
+                    <label for="status_filter">Status Filter</label>
+                    <select id="status_filter" name="status_filter" class="browser-default" style="margin-top: 45px;">
+                        <option value="all" {% if request.GET.status_filter == 'all' %}selected{% endif %}>All</option>
+                        <option value="active" {% if request.GET.status_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="canceled" {% if request.GET.status_filter == 'canceled' %}selected{% endif %}>Canceled</option>
+                        <!-- Add more options based on your status choices -->
+                    </select>
+                </div>
+                <div class="input-field col s6">
+                    <button class="btn waves-effect waves-light" type="submit">Apply Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
 <!-- Bookings table -->
-<table border="1">
+<table class="striped">
     <thead>
         <tr>
             <th><a href="?sort_by=check_in_date">Check-in Date</a></th>
@@ -47,8 +52,10 @@
         {% endfor %}
     </tbody>
 </table>
+
 <!-- Add Excel download link -->
-<a href="{% url 'hotel_your_choice:download_excel' %}">Download Excel</a>
+<a href="{% url 'hotel_your_choice:download_excel' %}" class="btn waves-effect waves-light">Download Excel</a>
+
 <!-- Pagination links -->
 <div class="pagination">
     <span class="step-links">

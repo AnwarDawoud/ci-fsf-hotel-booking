@@ -46,7 +46,6 @@
     display: none;
     position: fixed;
     top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
     max-width: 80%;
     /* Adjust this value as needed */
@@ -56,7 +55,6 @@
     overflow-y: auto;
     /* Enable vertical scrolling if the content exceeds the viewport */
     background-color: white;
-    padding: 20px;
     z-index: 1000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -76,7 +74,6 @@
 /* Styles for ratings button */
 .ratings-button {
     display: inline-block;
-    padding: 8px 16px;
     background-color: #007bff;
     /* Button color */
     color: #fff;
