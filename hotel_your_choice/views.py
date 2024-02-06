@@ -5,6 +5,7 @@ import logging
 from urllib.parse import quote
 
 # Django imports
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -47,6 +48,12 @@ from .models import (
     Rating,
     # UserActivity
 )
+
+from django.shortcuts import redirect
+
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 # Third party imports
 import xlsxwriter
@@ -529,11 +536,7 @@ def view_booking_details(request, booking_id):
 
 
 
-from django.shortcuts import redirect
 
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
 
 @login_required
 def book_hotel(request, hotel_id, hotel_name):
@@ -943,3 +946,13 @@ def delete_experience(request, booking_id):
 
     return HttpResponse("Method not allowed", status=405)
 
+
+
+def forbidden(request, exception):
+    return render(request, '403.html', status=403)
+
+def not_found(request, exception):
+    return render(request, '404.html', status=404)
+
+def server_error(request):
+    return render(request, '500.html', status=500)

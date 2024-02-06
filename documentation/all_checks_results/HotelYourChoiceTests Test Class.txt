@@ -1,0 +1,43 @@
+HotelYourChoiceTests Test Class
+
+This is a test class that is used to test different parts of the HotelYourChoice application. It imports the TestCase class from Django that allows writing tests.
+
+It first sets up some test data by creating a custom user, hotel object and booking object to use in the tests.
+
+It has several test methods that each test a different part of the models or views:
+
+test_hotel_model: Checks that the string representation of a Hotel object returns the hotel name.
+
+test_view_hotels: Makes a request to the view_hotels view and checks that it returns a 200 status code and contains the test hotel name.
+
+test_check_in_date_in_future: Creates a booking with a check-in date in the future and verifies that the check-in date is greater than today's date.
+
+test_booking_check_in_date: Checks that the booking's check-in date matches today's date.
+
+test_booking_check_out_date: Checks that the booking's check-out date is 5 days after the check-in date.
+
+test_booking_guests_count: Checks that the booking's guest count matches the value that was set.
+
+test_booking_status_active: Checks that the booking's status is 'active'.
+
+test_invalid_guests_count: Tests that creating a booking with invalid guests count raises an exception.
+
+test_booking_status_cancelled: Tests cancelling a booking by creating a new booking, cancelling it and checking that the status changed.
+
+Overall, it tests the Hotel, Booking models and view_hotels view to verify they work as expected. The tests provide sample data, make requests, and assert that the results match the expected values. This helps catch bugs and ensure the code is functioning properly.
+
+
+
+
+
+Result of tests :
+
+(env) PS C:\Users\Oleg\Desktop\ci-fsf-hotel-booking\hotels_booking> python manage.py test hotel_your_choice.tests
+Creating test database for alias 'default'...
+System check identified no issues (0 silenced).
+................
+----------------------------------------------------------------------
+Ran 16 tests in 1.412s
+
+OK
+Destroying test database for alias 'default'...

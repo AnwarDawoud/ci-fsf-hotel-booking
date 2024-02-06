@@ -1,27 +1,28 @@
-# tests case
 import os
 import django
 import unittest
 
-from django.test import TestCase
-from .models import CustomUser, Hotel, Booking
+from django.test import TestCase, Client
 from django.urls import reverse
 from datetime import datetime, timedelta
 from django.forms import ValidationError
-from hotel_your_choice.forms import CustomRegistrationForm
+from hotel_your_choice.forms import CustomRegistrationForm, YourBookingForm
 from django.core.exceptions import ValidationError
+from .models import CustomUser, Hotel, Booking, Amenity, Photo, Rating
+from django.contrib.auth import get_user_model
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "hotels_booking.settings"
+django.setup()
 
 
 class HotelYourChoiceTests(TestCase):
     def setUp(self):
-        # Create a custom user using create_user method from CustomUser manager
         self.user = CustomUser.objects.create_user(
             username="testuser",
             password="testpassword",
-            is_hotel_manager=True,  # Adjust as needed
+            is_hotel_manager=True,
         )
 
-        # Create a hotel using the custom user as the manager
         self.hotel = Hotel.objects.create(
             name="Test Hotel",
             description="Test description",
@@ -29,11 +30,10 @@ class HotelYourChoiceTests(TestCase):
             night_rate=100.0,
             capacity=10,
             room_number=5,
-            main_photo="path/to/main_photo.jpg",  # Adjust as needed
-            manager=self.user,  # Use the custom user as the manager
+            main_photo="path/to/main_photo.jpg",
+            manager=self.user,
         )
 
-        # Create a booking for the hotel
         check_in_date = datetime.now().date()
         check_out_date = check_in_date + timedelta(days=5)
         self.booking = Booking.objects.create(
@@ -53,11 +53,7 @@ class HotelYourChoiceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Hotel")
 
-    # New test method
     def test_check_in_date_in_future(self):
-        """
-        Test if the check-in date for a booking is in the future.
-        """
         future_check_in_date = datetime.now().date() + timedelta(days=3)
         future_check_out_date = future_check_in_date + timedelta(days=5)
         future_booking = Booking.objects.create(
@@ -74,9 +70,7 @@ class HotelYourChoiceTests(TestCase):
         self.assertEqual(self.booking.check_in_date, datetime.now().date())
 
     def test_booking_check_out_date(self):
-        expected_check_out_date = (
-            self.booking.check_in_date + timedelta(days=5)
-        )
+        expected_check_out_date = self.booking.check_in_date + timedelta(days=5)
         self.assertEqual(self.booking.check_out_date, expected_check_out_date)
 
     def test_booking_guests_count(self):
@@ -86,24 +80,17 @@ class HotelYourChoiceTests(TestCase):
         self.assertEqual(self.booking.status, "active")
 
     def test_invalid_guests_count(self):
-        """
-        Test if an invalid number of guests for a booking raises an exception.
-        """
         with self.assertRaises(Exception):
             Booking.objects.create(
                 user=self.user,
                 hotel=self.hotel,
                 check_in_date=datetime.now().date(),
                 check_out_date=datetime.now().date() + timedelta(days=5),
-                guests=-1,  # Invalid number of guests
+                guests=-1,
                 status="active",
             )
 
     def test_booking_status_cancelled(self):
-        """
-        Test if a booking can be cancelled successfully.
-        """
-        # Create a new booking
         new_booking = Booking.objects.create(
             user=self.user,
             hotel=self.hotel,
@@ -113,10 +100,7 @@ class HotelYourChoiceTests(TestCase):
             status="active",
         )
 
-        # Cancel the booking
         new_booking.cancel()
-
-        # Check if the status is now 'cancelled'
         self.assertEqual(new_booking.status, "cancelled")
 
 
@@ -140,19 +124,11 @@ class TestCustomRegistrationForm(unittest.TestCase):
             form.clean()
 
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "hotels_booking.settings"
-
-
-django.setup()
-
-
 class TestCustomUser(unittest.TestCase):
     def setUp(self):
-        # Create any initial data or setup required for the tests
         pass
 
     def tearDown(self):
-        # Clean up any data or resources created during the tests
         CustomUser.objects.all().delete()
 
     def test_custom_user_saved_with_valid_data(self):
@@ -164,10 +140,8 @@ class TestCustomUser(unittest.TestCase):
 
     def test_custom_user_raises_error_with_invalid_data(self):
         user = CustomUser(username="")
-        # Empty username to trigger
-        # the validation error
         with self.assertRaises(ValidationError):
-            user.full_clean()  # Validate the user without saving
+            user.full_clean()
 
     def test_generate_reset_token(self):
         user = CustomUser(
@@ -185,3 +159,200 @@ class TestCustomUser(unittest.TestCase):
         user.save()
         self.assertEqual(user.username, "test3")
 
+
+class HotelModelTestCase(TestCase):
+    def setUp(self):
+        self.manager = get_user_model().objects.create_user(
+            username="hotelmanager",
+            email="manager@example.com",
+            password="HOTmanager123",
+        )
+
+    def test_hotel_creation(self):
+        hotel = Hotel.objects.create(
+            name="Test Hotel",
+            description="Test description",
+            address="Test address",
+            night_rate=100.0,
+            capacity=10,
+            room_number=5,
+            main_photo="test_main_photo.jpg",
+            manager=self.manager,
+        )
+
+
+class AmenityModelTestCase(TestCase):
+    def setUp(self):
+        self.amenity = Amenity.objects.create(name="Wi-Fi")
+
+    def test_amenity_creation(self):
+        self.assertEqual(self.amenity.name, "Wi-Fi")
+
+
+class CustomUserModelTestCase(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create(username="testuser", email="test@example.com")
+
+    def test_user_creation(self):
+        self.assertEqual(str(self.user), "testuser")
+        self.assertEqual(self.user.email, "test@example.com")
+
+
+class CustomRegistrationFormTestCase(TestCase):
+    def test_valid_registration_form(self):
+        form_data = {
+            "username": "testuser",
+            "email": "test@example.com",
+            "password1": "testpass123",
+            "password2": "testpass123",
+        }
+        form = CustomRegistrationForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_registration_form(self):
+        form_data = {
+            "username": "",
+            "email": "invalid_email",
+            "password1": "testpass123",
+            "password2": "testpass123",
+        }
+        form = CustomRegistrationForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+
+class YourBookingFormTestCase(TestCase):
+    def test_valid_booking_form(self):
+        form_data = {"check_in_date": "2024-02-10", "check_out_date": "2024-02-15", "guests": 2}
+        form = YourBookingForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_booking_form(self):
+        form_data = {"check_in_date": "2024-02-15", "check_out_date": "2024-02-10", "guests": -1}
+        form = YourBookingForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+
+class RegisterViewTestCase(TestCase):
+    def test_register_new_user(self):
+        url = reverse("hotel_your_choice:register")
+        data = {
+            "username": "testuser",
+            "email": "testuser@example.com",
+            "password1": "testpassword",
+            "password2": "testpassword",
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(get_user_model().objects.filter(username="testuser").exists())
+
+
+class LogoutViewTestCase(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="test_user", email="test@example.com", password="password123"
+        )
+
+    def test_logout_logged_in_user(self):
+        self.client.login(username="test_user", password="password123")
+        url = reverse("hotel_your_choice:logout")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_logout_no_user_logged_in(self):
+        url = reverse("hotel_your_choice:logout")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/"))
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+
+class BookingViewTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = CustomUser.objects.create_user(
+            username="testuser", email="testuser@example.com", password="testpassword"
+        )
+
+    def test_booking_form(self):
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.get(reverse("hotel_your_choice:book_hotel", kwargs={"hotel_id": 1, "hotel_name": "test-hotel"}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_booking(self):
+        self.client.login(username="testuser", password="testpassword")
+        response = self.client.post(reverse("hotel_your_choice:book_hotel", kwargs={"hotel_id": 1, "hotel_name": "test-hotel"}), {"booking_data": "data"}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+
+class LoginViewTestCase(TestCase):
+    def setUp(self):
+        self.user = CustomUser.objects.create_user(
+            username="testuser", email="testuser@example.com", password="testpassword"
+        )
+
+    def test_login_with_valid_credentials(self):
+        url = reverse("hotel_your_choice:login")
+        data = {"username": "testuser", "password": "testpassword"}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/"))
+        self.assertTrue("_auth_user_id" in self.client.session)
+
+    def test_login_with_invalid_credentials(self):
+        url = reverse("hotel_your_choice:login")
+        data = {"username": "testuser", "password": "invalidpassword"}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse("_auth_user_id" in self.client.session)
+
+    def test_access_login_page(self):
+        url = reverse("hotel_your_choice:login")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+
+class RegisterViewTestCase(TestCase):
+    def setUp(self):
+        self.User = get_user_model()
+
+    def test_register_existing_user(self):
+        existing_user = self.User.objects.create_user(
+            "existinguser", "existinguser@example.com", "existingpassword"
+        )
+
+        url = reverse("hotel_your_choice:register")
+        data = {
+            "username": "existinguser",
+            "email": "testuser@example.com",
+            "password1": "testpassword",
+            "password2": "testpassword",
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(self.User.objects.filter(username="testuser").exists())
+
+    def test_register_invalid_data(self):
+        url = reverse("hotel_your_choice:register")
+        data = {
+            "username": "",
+            "email": "testuser@example.com",
+            "password1": "testpassword",
+            "password2": "testpassword",
+        }
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(CustomUser.objects.filter(username="").exists())
+
+
+if __name__ == "__main__":
+    unittest.main()
