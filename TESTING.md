@@ -84,5 +84,165 @@ When delete the booking the related rating and comments not deleting accordingly
 
 Unit tests have been implemented to test basic functionality of models, forms and views.
 
-![Automation Tests](hotels_booking/documentation/automation_tests.png)
+![Automation Tests](documentation/automation_tests.png)
 
+### HTML [W3C Validator](https://validator.w3.org/)
+
+Because of the Django templating language code embedded in the HTML files, the urls can't be directly copied and pasted into the validator. Instead, the source code of each page was pasted into the validator directly.
+
+#### Add Hotel Page
+
+![Add Hotel Page](documentation/all_checks_results/Add_Hotel_page.png)
+
+#### Client Dashboard
+
+![Client Dashboard](documentation/all_checks_results/Client_Dashboard.png)
+
+#### Hotel Manager Dashboard Page
+
+![Hotel Manager Dashboard Page](documentation/all_checks_results/Hotel_Manager_Dashboard_page.png)
+
+#### Login Page
+
+![Login Page](documentation/all_checks_results/login_page.png)
+
+#### Manage Bookings Page
+
+![Manage Bookings Page](documentation/all_checks_results/Manage_Bookings_page.png)
+
+#### Rate Experience
+
+![Rate Experience](documentation/all_checks_results/rate_experience.png)
+
+#### Unsubscribe
+
+![Unsubscribe](documentation/all_checks_results/Unsubscribe.png)
+
+#### View Hotels Page
+
+![View Hotels Page](documentation/all_checks_results/view_hotels_page.png)
+
+### CSS [W3C Jigsaw Validator](https://jigsaw.w3.org/css-validator/)
+
+![CSS Validation](documentation/all_checks_results/CSS_Validation.png)
+
+### JavaScript [JSHint](https://jshint.com/)
+
+JSHint quality tool has been used to test the code, without finding any problems. The warnings reported were due to bootstrap undefined or unused variables.
+
+#### Hotel Script
+
+![Hotel Script](documentation/hotel_script.png)
+
+#### Main
+
+![Main](documentation/main.png)
+
+### [Python Linter](https://pep8ci.herokuapp.com/)
+
+Only the files with custom written python coded have been tested:
+
+#### admin.py Test
+
+![admin.py Test](documentation/all_checks_results/admin.py_test.png)
+
+#### forms.py Test
+
+![forms.py Test](documentation/all_checks_results/forms.py_test.png)
+
+#### models.py Test
+
+![models.py Test](documentation/all_checks_results/models.py_test.png)
+
+#### tests.py Test
+
+![tests.py Test](documentation/all_checks_results/tests.py_test.png)
+
+#### urls.py Test
+
+![urls.py Test](documentation/all_checks_results/urls.py_test.png)
+
+#### views.py Test
+
+![views.py Test](documentation/all_checks_results/views.py_test.png)
+
+## Accessibility
+
+### Lighthouse
+
+#### Desktop Client Dashboard
+
+![Desktop Client Dashboard](documentation/lighthouse_tests/desktop_client_dashboard.png)
+
+#### Desktop Hotel Manager - Add Hotel
+
+![Desktop Hotel Manager - Add Hotel](documentation/lighthouse_tests/desktop_hotel_manager_add_hotel.png)
+
+#### Desktop Hotel Manager Dashboard
+
+![Desktop Hotel Manager Dashboard](documentation/lighthouse_tests/desktop_hotel_manager_dashboard.png)
+
+#### Desktop Register
+
+![Desktop Register](documentation/lighthouse_tests/desktop_register.png)
+
+#### Desktop Unsubscribe
+
+![Desktop Unsubscribe](documentation/lighthouse_tests/desktop_unsubscribe.png)
+
+#### Desktop Common View Hotels
+
+![Desktop Common View Hotels](documentation/lighthouse_tests/desktop_common_view_hotels.png)
+
+#### Desktop Login
+
+![Desktop Login](documentation/lighthouse_tests/desktop_login.png)
+
+#### Desktop Hotel Manager - Manage Booking
+
+![Desktop Hotel Manager - Manage Booking](documentation/lighthouse_tests/desktop_hotel_manager_manage_booking.png)
+
+#### Mobile Client Dashboard
+
+![Mobile Client Dashboard](documentation/lighthouse_tests/mobile_client_dashboard.png)
+
+#### Mobile Common View Hotels
+
+![Mobile Common View Hotels](documentation/lighthouse_tests/mobile_common_view_hotels.png)
+
+#### Mobile Hotel Manager - Add Hotel
+
+![Mobile Hotel Manager - Add Hotel](documentation/lighthouse_tests/mobile_hotel_manager_add_hotel.png)
+
+#### Mobile Hotel Manager Dashboard
+
+![Mobile Hotel Manager Dashboard](documentation/lighthouse_tests/mobile_hotel_manager_dashboard.png)
+
+#### Mobile Hotel Manager - Manage Booking
+
+![Mobile Hotel Manager - Manage Booking](documentation/lighthouse_tests/mobile_hotel_manager_manage_booking.png)
+
+#### Mobile Login
+
+![Mobile Login](documentation/lighthouse_tests/mobile_login.png)
+
+#### Mobile Register
+
+![Mobile Register](documentation/lighthouse_tests/mobile_register.png)
+
+#### Mobile Unsubscribe
+
+![Mobile Unsubscribe](documentation/lighthouse_tests/mobile_unsubscribe.png)
+
+## Wave WebAIM
+
+During the development of the project, I utilized the WAVE WebAIM web accessibility tool extensively to ensure that the website meets the necessary accessibility standards. This tool played a crucial role in identifying and addressing various accessibility issues, particularly related to contrast, ultimately enhancing the inclusivity of the entire project.
+
+*-* **Identifying Low Contrast Issues:**
+
+  WAVE WebAIM highlighted instances of low contrast throughout the project, particularly in text elements and interactive components. This included issues with text readability against background colors and contrast ratios not meeting WCAG (Web Content Accessibility Guidelines) standards.
+
+*-* **Addressing Contrast Concerns:**
+  To improve accessibility, I systematically reviewed and adjusted the color combinations and styles across the project to ensure adequate contrast for all users. This involved modifying color palettes, adjusting text sizes, and refining design elements to meet or exceed WCAG guidelines for contrast ratios.
+
+**Following these efforts and subsequent rounds of testing, the project achieved a significantly improved level of accessibility with regards to contrast, contributing to a more inclusive and user-friendly experience for all users.**
