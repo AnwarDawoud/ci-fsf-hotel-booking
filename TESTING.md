@@ -84,4 +84,5 @@ When delete the booking the related rating and comments not deleting accordingly
 
 Unit tests have been implemented to test basic functionality of models, forms and views.
 
-![](hotels_booking\documentation\automation_tests.png
+![Automation Tests](hotels_booking/documentation/automation_tests.png)
+
