@@ -34,7 +34,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.contenttypes',  # Keep only one entry for contenttypes
@@ -43,9 +42,10 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
-    'django.contrib.auth',
-    'hotel_your_choice.apps.YourAppConfig',
+    'hotel_your_choice.apps.YourAppConfig',  # Your custom app
+    'django.contrib.auth',  # Make sure this comes after your custom app
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
