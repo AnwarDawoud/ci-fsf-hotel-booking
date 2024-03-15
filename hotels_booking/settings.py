@@ -13,8 +13,6 @@ load_dotenv()
 # Base directory of the Django project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Define DEBUG based on environment variable
-DEBUG = os.getenv('DEBUG', default='True').lower() == 'true'
 
 # Secret key for Django application
 SECRET_KEY = os.getenv('SECRET_KEY')

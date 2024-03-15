@@ -119,10 +119,10 @@ class CustomUserAdmin(BaseUserAdmin):
     )
 
 
-# Create or get groups
-administrator_group, _ = Group.objects.get_or_create(name="Administrators")
-hotel_managers_group, _ = Group.objects.get_or_create(name="Hotel Managers")
-users_group, _ = Group.objects.get_or_create(name="Users")
+# # Create or get groups
+# administrator_group, _ = Group.objects.get_or_create(name="Administrators")
+# hotel_managers_group, _ = Group.objects.get_or_create(name="Hotel Managers")
+# users_group, _ = Group.objects.get_or_create(name="Users")
 
 # Get all permissions and assign them to the superuser if it exists
 all_permissions = Permission.objects.all()
