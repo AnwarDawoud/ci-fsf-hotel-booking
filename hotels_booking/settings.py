@@ -28,6 +28,8 @@ ON_HEROKU = os.getenv('ON_HEROKU', default='False').lower() == 'true'
 # Set DEBUG to False if running on Heroku
 if ON_HEROKU:
     DEBUG = False
+else:
+    DEBUG = True
 
 ALLOWED_HOSTS = [
     'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com',
@@ -46,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'hotel_your_choice.apps.YourAppConfig',
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
