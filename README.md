@@ -132,7 +132,15 @@ All features have been prioritized and developed in response to the needs outlin
 
 The Entity-Relationship Diagram (ERD) has been extracted from SQLite.
 
-![Database Diagram](hotels_booking/DB/db.pdf)
+![Database Diagram](/hotels_booking/documentation/ERD.png)
+![Database tables](/hotels_booking/DB/DB_table_P1.png)
+![Database tables](/hotels_booking/DB/DB_table_P2.png)
+![Database tables](/hotels_booking/DB/DB_table_P3.png)
+![Database tables](/hotels_booking/DB/DB_table_P4.png)
+![Database tables](/hotels_booking/DB/DB_table_P5.png)
+![Database tables](/hotels_booking/DB/DB_table_P6.png)
+![Database tables](/hotels_booking/DB/DB_table_P7.png)
+![Database tables](/hotels_booking/DB/DB_table_P8.png)
 
 ### CRUD
 
@@ -277,7 +285,7 @@ This site has been deployed to Heroku, using ElephantSQL database and Cloudinary
     - In ``settings.py``, in the INSTALLED_APPS list, above ``django.contrib.staticfiles`` add ``cloudinary_storage``, below add ``cloudinary``
     - Connect Cloudinary to the Django app in settings.py:
 
-        ````
+        ```
         STATIC_URL = '/static/'
         STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
         STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -285,17 +293,17 @@ This site has been deployed to Heroku, using ElephantSQL database and Cloudinary
 
         MEDIA_URL = '/media/'
         DEFAULT_SITE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-        ````
+        ```
 
     - Change the templates directory to TEMPLATES_DIR. Place within the TEMPLATES array: 'DIRS': [TEMPLATES_DIR]
     - Add Heroku Hostname to ALLOWED_HOSTS
 
-        ````
+        ```
         if development:
             ALLOWED_HOSTS = [os.environ.get('LOCALHOST')]
         else:
             ALLOWED_HOSTS = [os.environ.get('HEROKU_HOSTNAME')]
-        ````
+        ```
 
 8. Create Procfile
 
@@ -353,4 +361,4 @@ I would like to express my gratitude to the following:
 
 - **Ahmed Dawoud (Brother):** Thank you to my brother Ahmed Dawoud, who works as an IT project manager, for his valuable insights and guidance.
 
-**I wish the project met the criteria required by Code Institute**
+_**_I wish the project met the criteria required by Code Institute**_

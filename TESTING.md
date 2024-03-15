@@ -120,7 +120,7 @@ Because of the Django templating language code embedded in the HTML files, the u
 
 #### View Hotels Page
 
-![View Hotels Page](documentation/all_checks_results/view_hotels_page.png)
+![View Hotels Page](documentation/all_checks_results/view_hotels_page.png )
 
 ### CSS [W3C Jigsaw Validator](https://jigsaw.w3.org/css-validator/)
 
@@ -192,15 +192,15 @@ Only the files with custom written python coded have been tested:
 
 #### Desktop Common View Hotels
 
-![Desktop Common View Hotels](documentation/lighthouse_tests/desktop_common_view_hotels.png)
+![Desktop Common View Hotels](documentation/lighthouse_tests/desktp_common_view_hotels.png)
 
 #### Desktop Login
 
-![Desktop Login](documentation/lighthouse_tests/desktop_login.png)
+![Desktop Login](documentation/lighthouse_tests/desktp_login.png)
 
 #### Desktop Hotel Manager - Manage Booking
 
-![Desktop Hotel Manager - Manage Booking](documentation/lighthouse_tests/desktop_hotel_manager_manage_booking.png)
+![Desktop Hotel Manager - Manage Booking](documentation/lighthouse_tests/desltop_hotel_manager_manage_booking.png)
 
 #### Mobile Client Dashboard
 

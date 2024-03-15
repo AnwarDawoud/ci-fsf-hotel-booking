@@ -14,7 +14,6 @@ from PIL import Image
 from cloudinary.models import CloudinaryField
 from cloudinary.exceptions import Error as CloudinaryException
 
-
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser, Group
 

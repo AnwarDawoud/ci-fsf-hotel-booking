@@ -7,32 +7,33 @@ from decouple import config
 
 import logging
 
-
 # Load environment variables from .env file
 load_dotenv()
 
-# Use environment variables in your settings
-DEBUG = os.getenv('DEBUG')
+# Base directory of the Django project
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-config_path = os.path.join(BASE_DIR, '.env')
-load_dotenv(config_path)
+# Define DEBUG based on environment variable
+DEBUG = os.getenv('DEBUG', default='True').lower() == 'true'
 
-# Continue with the rest of your settings.py
+# Secret key for Django application
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+# Directory where Django will look for templates
+TEMPLATES_DIR = BASE_DIR / 'templates'
 
-ON_HEROKU = os.getenv('ON_HEROKU', default='False') == 'True'
+# Determine if running on Heroku based on environment variable
+ON_HEROKU = os.getenv('ON_HEROKU', default='False').lower() == 'true'
 
-DEBUG = not ON_HEROKU
+# Set DEBUG to False if running on Heroku
+if ON_HEROKU:
+    DEBUG = False
 
 ALLOWED_HOSTS = [
     'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com',
     'localhost',
     '127.0.0.1',
 ]
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,7 +46,6 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'hotel_your_choice.apps.YourAppConfig',
 ]
-    
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,7 +62,11 @@ ROOT_URLCONF = 'hotels_booking.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR],
+        'DIRS': [
+            # Add the directory containing your custom error templates
+            os.path.join(BASE_DIR, 'hotel_your_choice', 'templates', 'hotel_your_choice'),
+            # Add other directories if needed
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,17 +78,6 @@ TEMPLATES = [
         },
     },
 ]
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'mylocaldb', 
-#         'USER': 'postgres',
-#         'PASSWORD': 'password',
-#         'HOST': 'localhost',
-#         'PORT': 5432
-#     }
-# }
 
 # Database configuration
 if ON_HEROKU:
@@ -170,5 +163,4 @@ LOGGING = {
             'style': '{',
         },
     },
-    
 }
