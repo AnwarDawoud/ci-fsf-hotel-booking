@@ -1,0 +1,422 @@
+/* hotels_booking\hotel_your_choice\static\hotel_your_choice_css\style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-bottom: 60px; /* Add margin at the bottom to create space for the footer */
+}
+
+header {
+    background-color: darkorange;
+    color: darkblue;
+    padding: 1em;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+nav a {
+    text-decoration: none;
+    color: rgb(29, 1, 1);
+    font-weight: bold;
+}
+
+main {
+    padding: 1em;
+    bottom: 50px;
+    margin-bottom: 20px; /* Add margin between main content and footer */
+}
+
+footer {
+    position: initial;
+    width: 100%;
+    background-color: darkorange;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto; /* Align the footer to the bottom of the viewport */
+}
+
+h1 {
+    font-size: 28px !important;
+}
+
+h2 {
+    font-size: 24px !important;
+}
+
+h3 {
+    font-size: 20px !important;
+}
+
+h4 {
+    font-size: 18px !important;
+}
+
+h5 {
+    font-size: 16px !important;
+}
+
+h6 {
+    font-size: 14px !important;
+}
+
+nav a {
+    color: darkblue !important;
+}
+
+/* Override Materialize CSS styles for the nav bar */
+nav {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: darkblue !important;
+}
+
+/* Style the 'a' element to look like a button */
+nav a.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: darkblue;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+nav a.button:hover {
+    background-color: blue;
+
+}
+
+.custom-text-color {
+    color: #000 !important;
+    margin-bottom: 15px !important;
+    
+}
+
+/* Custom CSS for the mobile-above-hotel-container class */
+.mobile-above-hotel-container {
+    margin-top: 33px; /* Add margin top */
+    margin-left: 10px; /* Add margin left */
+}
+
+/* Media query for all devices */
+@media screen and (max-width: 992px) {
+    .mobile-above-hotel-container {
+        margin-top: 33px; /* Add margin top */
+        margin-left: 10px; /* Add margin left */
+    }
+}
+
+/* Define the style for mobile devices */
+@media only screen and (max-width: 600px) {
+    .mobile-above-hotel-container {
+        /* Add your mobile-specific styles here */
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+}
+
+.table-of-contents a {
+    letter-spacing: 0.4em !important;
+}
+
+.flatpickr-current-month .numInputWrapper {
+    width: 100px !important;
+}
+
+/* View hotels css */
+
+/* Styles for detailed ratings */
+.ratings-details {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+/* Styles for like/dislike section */
+.like-dislike {
+    margin-top: 10px;
+}
+
+.like-comment-btn,
+.dislike-comment-btn {
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* Styles for comment list */
+.comment-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* Styles for individual comment */
+.comment {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+/* Styles for delete comment button */
+.delete-comment-btn {
+    cursor: pointer;
+    color: red;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+/* Additional styling for centering the modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 80%;
+    /* Adjust this value as needed */
+    width: auto;
+    max-height: 80vh;
+    /* Adjust this value as needed */
+    overflow-y: auto;
+    /* Enable vertical scrolling if the content exceeds the viewport */
+    background-color: white;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+    max-width: 75%;
+    /* Adjust this value as needed */
+}
+
+.modal-content {
+    width: 100%;
+}
+
+/* Styles for ratings button */
+.ratings-button {
+    display: inline-block;
+    background-color: #007bff;
+    /* Button color */
+    color: #fff;
+    /* Text color */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Style for when the button is hovered */
+.ratings-button:hover {
+    background-color: #0056b3;
+    /* Button color on hover */
+    color: #fff;
+    /* Text color on hover */
+}
+
+/* Styles for other photos */
+.other-photos {
+    display: none;
+    margin-top: 10px;
+}
+
+/* Styles for other photos */
+.other-photos img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Styles for enlarged image container */
+.enlarged-image-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Styles for enlarged image */
+.enlarged-image {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+}
+
+/* Styles for navigation arrows */
+#enlargedContainer .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 2;
+}
+
+#enlargedContainer #leftArrow {
+    left: 10px;
+}
+
+#enlargedContainer #rightArrow {
+    right: 10px;
+}
+
+
+/* New styles */
+
+/* Styles for hotel container */
+#hotelContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    /* Change from space-between to space-around */
+}
+
+/* Styles for individual hotel */
+.hotel-container {
+    display: flex;
+    width: 100%;
+    /* Occupy full width */
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+/* Styles for main photo */
+.hotel-main-photo {
+    flex: 1;
+    /* Take up 1/3 of the width */
+}
+
+.hotel-main-photo img {
+    width: 500px;
+    height: 500px;
+    border-radius: 8px;
+}
+
+/* Styles for hotel photos */
+.hotel-photos img {
+    width: 400px;
+    height: 500px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Styles for hotel card */
+.hotel-card {
+    flex: 2;
+    /* Take up 2/3 of the width */
+    max-height: 500px;
+    /* Set the max height to 300px */
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+/* Styles for description summary */
+.description-summary {
+    margin-bottom: 10px;
+}
+
+.hotel-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.hotel-card h2 {
+    margin-bottom: 10px;
+}
+
+/* Styles for the new modal overlay */
+.modal-read-more {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 80%;
+    width: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+    background-color: white;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-read-more h2 {
+    margin-bottom: 10px;
+}
+
+.modal-read-more p {
+    margin-bottom: 10px;
+}
+
+.btn-book-now {
+
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* static/admin_styles.css */
+
+/* Define styles for Booking Status */
+.booking-active {
+    color: green !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Canceled */
+.booking-canceled {
+    color: red !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Rescheduled */
+.booking-rescheduled {
+    color: orange !important;
+    font-weight: bold !important;
+}
+
+/* Styles for Booking Completed */
+.booking-completed {
+    color: blue !important;
+    font-weight: bold !important;
+}

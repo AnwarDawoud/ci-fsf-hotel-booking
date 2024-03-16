@@ -1,0 +1,213 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+<h1 class="center-align">Hotel Information</h1>
+
+<div id="hotelContainer" class="hotels-container">
+    <div class="row">
+        {% for hotel in hotels %}
+        <div class="col s12">
+            <div class="card horizontal">
+                <div class="card-image mobile-above-hotel-container">
+                    {% if hotel.main_photo %}
+                        <img src="{{ hotel.main_photo.url }}" alt="{{ hotel.name }} Photo">
+                    {% endif %}
+                </div>
+                {% if user.is_authenticated and user == hotel.manager %}
+                <a href="{% url 'hotel_your_choice:edit_hotel' hotel.id %}"
+                    class="btn btn-small waves-effect waves-light">
+                    Edit Hotel
+                </a>
+                <form method="post" action="{% url 'hotel_your_choice:delete_hotel' hotel.id %}"
+                    style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this hotel?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-small waves-effect waves-light red">Delete Hotel</button>
+                </form>
+                {% endif %}
+                <div class="card-stacked orange lighten-4">
+                    <div class="card-content">
+                        <h2>{{ hotel.name }}</h2>
+                        <a href="#" onclick="showReadMoreModal('{{ hotel.id }}')" style="color: #00008B; text-decoration: underline;">Show More Details</a>
+                        <!-- Modal content -->
+                        <div class="modal-read-more" id="readMoreModal{{ hotel.id }}">
+                            <h2>{{ hotel.name }}</h2>
+                            <p>{{ hotel.description }}</p>
+                            <!-- Include other details as needed -->
+                            <button onclick="hideReadMoreModal('{{ hotel.id }}')">Close</button>
+                        </div>
+                        <p>{{ hotel.address }}</p>
+                        <p>Amenities: {{ hotel.amenities }}</p>
+                        <p>Price per night: {{ hotel.night_rate }}</p>
+                        <p>Room number: {{ hotel.room_number }}</p>
+                        <p>Capacity: {{ hotel.capacity }}</p>
+
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'hotel_your_choice:book_hotel' hotel.id hotel.name %}"
+                        class="btn btn-small waves-effect waves-light pulse"
+                        style="background-color: lightorange; color: darkblue;">
+                            Book Now
+                        </a>
+                        {% else %}
+                        <p>Login to book this hotel.</p>
+                        {% endif %}
+
+                        {% if hotel.other_photos.all %}
+                        <div class="other-photos-container">
+                            <h5>More Photos:</h5>
+                            <div class="other-photos" id="otherPhotos{{ hotel.id }}">
+                                {% for photo in hotel.other_photos.all %}
+                                <img src="{{ photo.image.url }}" alt="{{ hotel.name }} Other Photo"
+                                    data-hotel-id="{{ hotel.id }}">
+                                {% endfor %}
+                            </div>
+                            <button id="showPhotosButton{{ hotel.id }}"
+                                onclick="toggleOtherPhotos('{{ hotel.id }}')">Show All Photos</button>
+                            <!-- Enlarged image container -->
+                            <div class="enlarged-image-container" id="enlargedContainer">
+                                <img src="#" alt="Enlarged Image" class="enlarged-image" id="enlargedImage">
+                                <!-- Left arrow -->
+                                <div id="leftArrow" class="arrow">&lt;</div>
+                                <!-- Right arrow -->
+                                <div id="rightArrow" class="arrow">&gt;</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Display overall rating section for each hotel -->
+                        {% if hotel.rated_bookings %}
+                        <div class="hotel-container" data-hotel-id="{{ hotel.id }}">
+                            <a class="btn-small orange darken-2 waves-effect waves-light pulse toggle-ratings ratings-button modal-trigger custom-text-color"
+                                href="#ratingsModal{{ hotel.id }}" style="margin-top: 10px;">
+                                Ratings
+                            </a>
+                            <div id="ratingsModal{{ hotel.id }}" class="modal">
+                                <div class="modal-content">
+                                    <h5 class="modal-title">Detailed Ratings</h5>
+                                    {% for booking in hotel.rated_bookings.all %}
+                                    {% for rating in booking.ratings.all %}
+
+                                    <ul>
+                                        <li>
+                                            <span style="font-weight: bold;">{{ rating.user.username }}</span>,
+                                            Rating: {{ rating.rating }},
+                                            Comment: <span style="font-weight: bold;">{{ rating.text|default:'' }}</span>,
+                                            Date: {{ rating.timestamp|date:"F j, Y g:i a" }}
+
+                                            {% comment %} Booking Status: {{ booking.status }},
+                                            Booking Date: {{ booking.date }}, {% endcomment %}
+
+                                            {% if request.user.is_staff %}
+                                            {% if rating %}
+                                            <form method="post"
+                                                action="{% url 'hotel_your_choice:delete_experience' booking.id %}">
+                                                {% csrf_token %}
+                                                <input type="submit" value="Delete Rate Experience">
+                                            </form>
+                                            {% endif %}
+                                            {% endif %}
+
+                                            {% if booking.comments.exists %}
+                                            <ul class="comment-list">
+                                                {% for comment in booking.comments.all %}
+                                                <li class="comment" data-comment-id="{{ comment.id }}">
+                                                    <p>{{ comment.text }}</p>
+                                                    <div class="like-dislike">
+                                                        <form class="like-form" method="post"
+                                                            action="{% url 'hotel_your_choice:like_comment' comment.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="like-comment-btn"
+                                                                data-like-url="{% url 'hotel_your_choice:like_comment' comment.id %}"
+                                                                data-comment-id="{{ comment.id }}"
+                                                                {% if comment.user_has_liked %}disabled{% endif %}>
+                                                                👍<span
+                                                                    class="like-count">{{ comment.likes_count }}</span>
+                                                            </button>
+                                                        </form>
+
+                                                        <form class="dislike-form" method="post"
+                                                            action="{% url 'hotel_your_choice:dislike_comment' comment.id %}">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="dislike-comment-btn"
+                                                                data-dislike-url="{% url 'hotel_your_choice:dislike_comment' comment.id %}"
+                                                                data-comment-id="{{ comment.id }}"
+                                                                {% if comment.user_has_disliked %}disabled{% endif %}>
+                                                                👎<span
+                                                                    class="dislike-count">{{ comment.dislikes_count }}</span>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    {% if request.user.is_staff %}
+                                                    <div>
+                                                        <h2>Delete Comment</h2>
+                                                        <p>Are you sure you want to delete the comment
+                                                            "{{ comment.text }}"?</p>
+                                                        <p>Comment ID: {{ comment.id }}</p>
+                                                        <form method="post" class="delete-comment-form"
+                                                            data-comment-id="{{ comment.id }}">
+                                                            {% csrf_token %}
+                                                            <ul class="commentList">
+                                                                <li>
+                                                                    <button type="button" class="deleteCommentButton"
+                                                                        data-comment-id="{{ comment.id }}">Delete
+                                                                        Comment</button>
+                                                                </li>
+                                                            </ul>
+                                                        </form>
+                                                        <a href="{% url 'hotel_your_choice:view_hotels' %}">Cancel</a>
+                                                    </div>
+                                                    {% endif %}
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            {% endif %}
+
+                                            <form class="add-comment-form" data-booking-id="{{ booking.id }}"
+                                                action="{% url 'hotel_your_choice:add_comment' booking.id %}"
+                                                method="post">
+                                                {% csrf_token %}
+                                                {{ comment_form.text.label_tag }}
+                                                {{ comment_form.text }}
+                                                <input type="hidden" name="rating_id" value="{{ rating.id }}">
+                                                <button type="submit" class="add-comment-btn">Add Comment</button>
+                                            </form> 
+
+                                            <div class="ratings-details">
+                                                <p>User: {{ booking.user.username }}</p>
+                                                <p>Rating: {{ booking.ratings.first.rating }}</p>
+                                                <p>Comment: {{ booking.ratings.first.text|default:'' }}</p>
+                                                <p>Timestamp:
+                                                    {{ booking.ratings.first.timestamp|date:"F j, Y g:i a" }}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <hr>
+</div>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- Materialize JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<!-- Your custom JavaScript -->
+<script src="{% static 'js/main.js' %}"></script>
+
+
+{% endblock %}

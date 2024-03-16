@@ -18,14 +18,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # Directory where Django will look for templates
-TEMPLATES_DIR = BASE_DIR / 'templates'
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+
 
 # Determine if running on Heroku based on environment variable
 ON_HEROKU = os.getenv('ON_HEROKU', default='False').lower() == 'true'
 
 # Set DEBUG to False if running on Heroku
 if ON_HEROKU:
-    DEBUG = True
+    DEBUG = False
 else:
     DEBUG = True
 
@@ -62,8 +63,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            # Add the directory containing your custom error templates
-            os.path.join(BASE_DIR, 'hotel_your_choice', 'templates', 'hotel_your_choice'),
+            os.path.join(BASE_DIR, 'templates'),  # Updated directory path
             # Add other directories if needed
         ],
         'APP_DIRS': True,
@@ -96,9 +96,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Static files configuration
+# Static files configuration
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'hotel_your_choice', 'static'),
+    os.path.join(BASE_DIR, 'static'),  # Change this line
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
@@ -114,10 +115,7 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-# Exclude __pycache__ directories
-for root, dirs, files in os.walk(STATICFILES_DIRS[0]):
-    if '__pycache__' in dirs:
-        dirs.remove('__pycache__')
+
         
 LOGIN_URL = 'login'
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
@@ -169,3 +167,9 @@ LOGGING = {
         },
     },
 }
+
+
+
+SESSION_COOKIE_SAMESITE = 'None'
+
+SESSION_COOKIE_SECURE = True
