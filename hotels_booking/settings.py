@@ -81,12 +81,11 @@ TEMPLATES = [
 Database configuration
 if ON_HEROKU:
     DATABASE_URL = os.environ.get('DATABASE_URL')
-    DATABASES = {'default': dj_database_url.parse(os.environ.get("DATABASE_URL")}
+    DATABASES = {'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))}
 else:
     DATABASES = {
-    'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-}
-
+        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    }
 # DATABASES = {
 #     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
 # }
