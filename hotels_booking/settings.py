@@ -30,7 +30,7 @@ else:
     DEBUG = True
 
 ALLOWED_HOSTS = [
-    'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com/',
+    'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com',
     'localhost',
     '127.0.0.1',
 ]
@@ -78,18 +78,18 @@ TEMPLATES = [
     },
 ]
 
-# Database configuration
-# if ON_HEROKU:
-#     DATABASE_URL = os.environ.get('DATABASE_URL')
-#     DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
-# else:
-#     DATABASES = {
-#     'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-# }
-
-DATABASES = {
+Database configuration
+if ON_HEROKU:
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
+else:
+    DATABASES = {
     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
+
+# DATABASES = {
+#     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+# }
 
 # Media files configuration
 MEDIA_URL = '/media/'
