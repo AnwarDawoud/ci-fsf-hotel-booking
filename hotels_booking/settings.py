@@ -30,7 +30,7 @@ else:
     DEBUG = True
 
 ALLOWED_HOSTS = [
-    'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com',
+    'ci-fsf-hotel-booking-ae5af0acfb8b.herokuapp.com/',
     'localhost',
     '127.0.0.1',
 ]
