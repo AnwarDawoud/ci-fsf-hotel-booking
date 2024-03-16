@@ -79,20 +79,30 @@ TEMPLATES = [
 ]
 
 # Database configuration
-if ON_HEROKU:
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+# if ON_HEROKU:
+#     DATABASE_URL = os.environ.get('DATABASE_URL')
+#     DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
+# else:
+#     DATABASES = {
+#     'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+# }
 
+DATABASES = {
+    'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+}
+
+# Media files configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Static files configuration
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'hotel_your_choice', 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 CLOUDINARY = {
     'cloud_name': config('CLOUDINARY_CLOUD_NAME'),
     'api_key': config('CLOUDINARY_API_KEY'),
@@ -100,19 +110,16 @@ CLOUDINARY = {
     'secure': True  # Ensure HTTPS URLs
 }
 
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'hotel_your_choice', 'static'),
-]
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
+# Exclude __pycache__ directories
+for root, dirs, files in os.walk(STATICFILES_DIRS[0]):
+    if '__pycache__' in dirs:
+        dirs.remove('__pycache__')
+        
 LOGIN_URL = 'login'
 AUTH_USER_MODEL = 'hotel_your_choice.CustomUser'
 

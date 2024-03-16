@@ -19,21 +19,15 @@ from .choices import RATING_CHOICES
 from django.conf import settings
 
 
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
 class CustomUser(AbstractUser):
     is_hotel_manager = models.BooleanField(default=False)
     is_client_user = models.BooleanField(default=False)
     is_administrator = models.BooleanField(default=True)
-    groups = models.ManyToManyField(
-        Group, related_name="customuser_groups", db_table="custom_user_groups"
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name="customuser_permissions",
-        db_table="custom_user_user_permissions",
-    )
-    profile_picture = models.ImageField(
-        upload_to="profile_pics/", null=True, blank=True
-    )
+    # Remove the groups field
+    profile_picture = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
     reset_token = models.CharField(max_length=255, null=True, blank=True)
     contact_number = models.CharField(max_length=15, blank=True, null=True)
     roles = models.ManyToManyField("Role")  # Reference Role using string

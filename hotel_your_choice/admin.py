@@ -6,7 +6,8 @@ from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.dispatch import receiver
+from django.db.models.signals import post_migrate
 from django.urls import reverse
 from django.contrib.admin.models import LogEntry
 from .models import Hotel, Booking, CustomUser, Rating, Amenity, Photo
@@ -82,12 +83,11 @@ class CustomUserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
-                "Personal Info",
-                {"fields": (
-                    "first_name", "last_name", "email", "profile_picture"
-                )}
-            ),
-
+            "Personal Info",
+            {"fields": (
+                "first_name", "last_name", "email", "profile_picture"
+            )}
+        ),
         (
             "Permissions",
             {
@@ -118,17 +118,20 @@ class CustomUserAdmin(BaseUserAdmin):
         ),
     )
 
+# Define a signal handler for post-migrate
+@receiver(post_migrate)
+def create_groups_and_permissions(sender, **kwargs):
+    if sender.name == 'your_app_name':
+        # Create or get groups
+        administrator_group, _ = Group.objects.get_or_create(name="Administrators")
+        hotel_managers_group, _ = Group.objects.get_or_create(name="Hotel Managers")
+        users_group, _ = Group.objects.get_or_create(name="Users")
 
-# # Create or get groups
-# administrator_group, _ = Group.objects.get_or_create(name="Administrators")
-# hotel_managers_group, _ = Group.objects.get_or_create(name="Hotel Managers")
-# users_group, _ = Group.objects.get_or_create(name="Users")
-
-# Get all permissions and assign them to the superuser if it exists
-all_permissions = Permission.objects.all()
-superuser = User.objects.filter(is_superuser=True).first()
-if superuser:
-    superuser.user_permissions.set(all_permissions)
+        # Get all permissions and assign them to the superuser if it exists
+        all_permissions = Permission.objects.all()
+        superuser = User.objects.filter(is_superuser=True).first()
+        if superuser:
+            superuser.user_permissions.set(all_permissions)
 
 
 # Hotel Management
