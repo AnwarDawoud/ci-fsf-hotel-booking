@@ -5,7 +5,7 @@ from django.urls import path, include
 from django.conf import settings
 
 from django.shortcuts import render
-from hotel_your_choice.views import not_found
+from hotel_your_choice.views import not_found  
 
 
 urlpatterns = [
