@@ -132,15 +132,15 @@ All features have been prioritized and developed in response to the needs outlin
 
 The Entity-Relationship Diagram (ERD) has been extracted from SQLite.
 
-![Database Diagram](DB/ERD.png)
-![Database tables](DB/DB_table_P1.png)
-![Database tables](DB/DB_table_P2.png)
-![Database tables](DB/DB_table_P3.png)
-![Database tables](DB/DB_table_P4.png)
-![Database tables](DB/DB_table_P5.png)
-![Database tables](DB/DB_table_P6.png)
-![Database tables](DB/DB_table_P7.png)
-![Database tables](DB/DB_table_P8.png)
+![Database Diagram](documentation/ERD.png)
+![Database tables](documentation/DB_table_P1.png)
+![Database tables](documentation/DB_table_P2.png)
+![Database tables](documentation/DB_table_P3.png)
+![Database tables](documentation/DB_table_P4.png)
+![Database tables](documentation/DB_table_P5.png)
+![Database tables](documentation/DB_table_P6.png)
+![Database tables](documentation/DB_table_P7.png)
+![Database tables](documentation/DB_table_P8.png)
 
 ### CRUD
 
