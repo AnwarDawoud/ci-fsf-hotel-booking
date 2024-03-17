@@ -8,7 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    margin-bottom: 60px; /* Add margin at the bottom to create space for the footer */
+    position: relative; 
 }
 
 header {
@@ -42,13 +42,13 @@ main {
 }
 
 footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
     background-color: darkorange;
     color: white;
     text-align: center;
     padding: 10px 0;
+    position: relative; /* Set position to fixed */
+    bottom: 0; /* Position the footer at the bottom of the viewport */
+    width: 100%; /* Make sure the footer spans the entire width of the viewport */
 }
 
 h1 {
